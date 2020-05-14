@@ -2,7 +2,6 @@
 
 namespace TNO\EssifLab\Tests\Integrations;
 
-use Closure;
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\Integrations\WordPress;
 use TNO\EssifLab\Tests\Stubs\ModelRenderer;
@@ -49,7 +48,6 @@ class WordPressTest extends TestCase {
 		$this->assertCount(7, $history);
 	}
 
-
 	/** @test */
 	function installs_all_model_types_their_save_handlers() {
 		$this->subject->install();
@@ -59,9 +57,19 @@ class WordPressTest extends TestCase {
 
 		$fields = array_filter($history, function ($entry) {
 			$hookName = $entry->getParams()[0];
+
 			return strpos($hookName, 'save_post') !== false;
 		});
 		$this->assertCount(7, $fields);
+	}
+
+	/** @test */
+	function installs_all_model_types_their_save_handlers_and_removes_all_actions_before_updating() {
+		$_POST['namespace'][Constants::FIELD_TYPE_SIGNATURE] = 'hello';
+		$this->subject->install();
+
+		$history = $this->utility->getHistoryByFuncName(WP::REMOVE_ALL_ACTIONS_AND_EXEC);
+		$this->assertNotEmpty($history);
 	}
 
 	/** @test */
@@ -73,6 +81,7 @@ class WordPressTest extends TestCase {
 
 		$relations = array_filter($history, function ($entry) {
 			$id = $entry->getParams()[0];
+
 			return strpos($id, '_relation_') !== false;
 		});
 		$this->assertCount(1, $relations);
@@ -128,6 +137,7 @@ class WordPressTest extends TestCase {
 
 		$relations = array_filter($history, function ($entry) {
 			$id = $entry->getParams()[0];
+
 			return strpos($id, '_field_') !== false;
 		});
 		$this->assertCount(1, $relations);

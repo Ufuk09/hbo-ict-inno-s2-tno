@@ -59,20 +59,26 @@ class WordPress extends BaseIntegration {
 		$this->utility->call(WP::ADD_ACTION, $hook, function ($_, $post) use ($hook) {
 			$namespace = $this->application->getNamespace();
 			if (array_key_exists($namespace, $_POST)) {
-				$old = json_decode($post->post_content, true);
-				$new = is_array($old) ? $old : [];
-				if (array_key_exists(Constants::FIELD_TYPE_SIGNATURE, $_POST[$namespace])) {
-					$new[Constants::FIELD_TYPE_SIGNATURE] = $_POST[$namespace][Constants::FIELD_TYPE_SIGNATURE];
-				}
-
+				$new = $this->prepareModelSaveData($_POST[$namespace], $post);
 				$this->utility->call(WP::REMOVE_ALL_ACTIONS_AND_EXEC, $hook, function () use ($post, $new) {
-					if (! empty($new)) {
-						$post->post_content = json_encode($new);
-						wp_update_post($post);
-					}
+					$this->executeModelSave($post, $new);
 				});
 			}
 		}, 10, 2);
+	}
+
+	private function prepareModelSaveData($data, $post): array {
+		$content = is_object($post) && property_exists($post, 'post_content') ? $post->post_content : '';
+		$old = json_decode($content, true);
+		$new = is_array($old) ? $old : [];
+		return $this->parseFieldSignature($data, $new);
+	}
+
+	private function executeModelSave($post, array $new): void {
+		if (! empty($new)) {
+			$post->post_content = json_encode($new);
+			$this->utility->call(BaseUtility::UPDATE_MODEL, $post);
+		}
 	}
 
 	private function registerModelComponents(Model $model): void {
@@ -206,5 +212,13 @@ class WordPress extends BaseIntegration {
 
 			return new MultiDimensional([$title, $description]);
 		}, $this->manager->selectAllRelations($parent));
+	}
+
+	private function parseFieldSignature(array $data, array $new): array {
+		if (array_key_exists(Constants::FIELD_TYPE_SIGNATURE, $data)) {
+			$new[Constants::FIELD_TYPE_SIGNATURE] = $data[Constants::FIELD_TYPE_SIGNATURE];
+		}
+
+		return $new;
 	}
 }

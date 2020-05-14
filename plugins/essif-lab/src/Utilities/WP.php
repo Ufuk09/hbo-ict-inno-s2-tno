@@ -84,6 +84,15 @@ class WP extends BaseUtility {
 		return $result;
 	}
 
+	static function updateModel($args): bool {
+		$result = wp_update_post($args, true);
+		if (! is_int($result)) {
+			throw $result;
+		}
+
+		return $result;
+	}
+
 	static function deleteModel(int $postId): bool {
 		return wp_delete_post($postId, true);
 	}
