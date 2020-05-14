@@ -16,6 +16,8 @@ class WP extends BaseUtility {
 
 	const APPLY_FILTERS = 'apply_filters';
 
+	const REMOVE_ALL_ACTIONS_AND_EXEC = 'remove_all_actions_and_exec';
+
 	const ADD_NAV_ITEM = 'add_menu_page';
 
 	const ADD_META_BOX = 'add_meta_box';
@@ -25,6 +27,7 @@ class WP extends BaseUtility {
 		self::ADD_FILTER => [self::class, 'addFilter'],
 		self::DO_ACTION => [self::class, 'doAction'],
 		self::APPLY_FILTERS => [self::class, 'applyFilter'],
+		self::REMOVE_ALL_ACTIONS_AND_EXEC => [self::class, 'removeAllActionsAndExecute'],
 		self::ADD_META_BOX => [self::class, 'addMetaBox'],
 		self::ADD_NAV_ITEM => [self::class, 'addAdminNav'],
 	];
@@ -43,6 +46,21 @@ class WP extends BaseUtility {
 
 	static function applyFilter(string $tag, $value, ...$params) {
 		return apply_filters($tag, $value, ...$params);
+	}
+
+	static function removeAllActionsAndExecute(string $tag, callable $callback) {
+		// Backup all filters and remove all actions temporary
+		global $wp_filter, $merged_filters;
+		$backup_wp_filter = $wp_filter;
+		$backup_merged_filters = $merged_filters;
+		remove_all_actions($tag);
+
+		// Execute the callback for the action once
+		$callback();
+
+		// Restore filters
+		$wp_filter = $backup_wp_filter;
+		$merged_filters = $backup_merged_filters;
 	}
 
 	static function addMetaBox(string $id, string $title, callable $callback, string $screen): void {
