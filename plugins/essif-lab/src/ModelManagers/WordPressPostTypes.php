@@ -32,7 +32,7 @@ class WordPressPostTypes extends BaseModelManager {
 
 	function select(Model $model, array $criteria = []): array {
 		$args = array_merge([
-			Constants::MANAGER_TYPE_ID_CRITERIA_NAME => $model->getTypeName(),
+			Constants::MODEL_TYPE_INDICATOR => $model->getTypeName(),
 		], $criteria);
 
 		return $this->utility->call(BaseUtility::GET_MODELS, $args);
@@ -107,12 +107,9 @@ class WordPressPostTypes extends BaseModelManager {
 		}
 
 		$currentModel = $this->utility->call(BaseUtility::GET_CURRENT_MODEL);
-		$isArray = is_array($currentModel);
-		$hasTypeKey = $isArray && array_key_exists(Constants::MANAGER_TYPE_ID_CRITERIA_NAME, $currentModel);
-		$isSameType = $hasTypeKey && $currentModel[Constants::MANAGER_TYPE_ID_CRITERIA_NAME] === $model->getTypeName();
-		$hasIdKey = $isArray && array_key_exists(Constants::TYPE_INSTANCE_IDENTIFIER_ATTR, $currentModel);
-		if ($isSameType && $hasIdKey) {
-			return $currentModel[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
+		$currentModelAttrs = empty($currentModel) ? [] : $currentModel->getAttributes();
+		if (array_key_exists(Constants::TYPE_INSTANCE_IDENTIFIER_ATTR, $currentModelAttrs)) {
+			return $currentModelAttrs[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
 		}
 
 		throw new MissingIdentifier($model->getSingularName());

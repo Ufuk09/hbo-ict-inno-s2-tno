@@ -7,7 +7,7 @@ use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Utilities\Exceptions\InvalidModelType;
 
-class WordPress extends BaseUtility {
+class WP extends BaseUtility {
 	const ADD_ACTION = 'add_action';
 
 	const ADD_FILTER = 'add_filter';
@@ -15,6 +15,8 @@ class WordPress extends BaseUtility {
 	const DO_ACTION = 'do_action';
 
 	const APPLY_FILTERS = 'apply_filters';
+
+	const REMOVE_ALL_ACTIONS_AND_EXEC = 'remove_all_actions_and_exec';
 
 	const ADD_NAV_ITEM = 'add_menu_page';
 
@@ -25,6 +27,7 @@ class WordPress extends BaseUtility {
 		self::ADD_FILTER => [self::class, 'addFilter'],
 		self::DO_ACTION => [self::class, 'doAction'],
 		self::APPLY_FILTERS => [self::class, 'applyFilter'],
+		self::REMOVE_ALL_ACTIONS_AND_EXEC => [self::class, 'removeAllActionsAndExecute'],
 		self::ADD_META_BOX => [self::class, 'addMetaBox'],
 		self::ADD_NAV_ITEM => [self::class, 'addAdminNav'],
 	];
@@ -43,6 +46,21 @@ class WordPress extends BaseUtility {
 
 	static function applyFilter(string $tag, $value, ...$params) {
 		return apply_filters($tag, $value, ...$params);
+	}
+
+	static function removeAllActionsAndExecute(string $tag, callable $callback) {
+		// Backup all filters and remove all actions temporary
+		global $wp_filter, $merged_filters;
+		$backup_wp_filter = $wp_filter;
+		$backup_merged_filters = $merged_filters;
+		remove_all_actions($tag);
+
+		// Execute the callback for the action once
+		$callback();
+
+		// Restore filters
+		$wp_filter = $backup_wp_filter;
+		$merged_filters = $backup_merged_filters;
 	}
 
 	static function addMetaBox(string $id, string $title, callable $callback, string $screen): void {
@@ -66,6 +84,15 @@ class WordPress extends BaseUtility {
 		return $result;
 	}
 
+	static function updateModel($args): bool {
+		$result = wp_update_post($args, true);
+		if (! is_int($result)) {
+			throw $result;
+		}
+
+		return $result;
+	}
+
 	static function deleteModel(int $postId): bool {
 		return wp_delete_post($postId, true);
 	}
@@ -75,12 +102,30 @@ class WordPress extends BaseUtility {
 			return self::modelFactory($post->to_array());
 		}, get_posts(array_merge([
 			'numberposts' => -1,
-			'post_type' => 'any',
+			Constants::MODEL_TYPE_INDICATOR => 'any',
 		], $args)));
 	}
 
+	static function getCurrentModel(): ?Model {
+		global $post;
+
+		if (empty($post) && array_key_exists('post', $_GET)) {
+			$post = get_post($_GET['post']);
+		}
+
+		if (empty($post) && array_key_exists(Constants::MODEL_TYPE_INDICATOR, $_GET)) {
+			return self::modelFactory([Constants::MODEL_TYPE_INDICATOR => $_GET[Constants::MODEL_TYPE_INDICATOR]]);
+		}
+
+		if (empty($post)) {
+			return null;
+		}
+
+		return self::modelFactory($post->to_array());
+	}
+
 	private static function modelFactory(array $args): Model {
-		$type = array_key_exists(Constants::MANAGER_TYPE_ID_CRITERIA_NAME, $args) ? $args[Constants::MANAGER_TYPE_ID_CRITERIA_NAME] : '';
+		$type = array_key_exists(Constants::MODEL_TYPE_INDICATOR, $args) ? $args[Constants::MODEL_TYPE_INDICATOR] : '';
 
 		$className = implode('', array_map('ucfirst', explode(' ', str_replace('-', ' ', $type))));
 		$FQN = Constants::TYPE_NAMESPACE.'\\'.$className;
@@ -117,12 +162,6 @@ class WordPress extends BaseUtility {
 		}
 
 		return [];
-	}
-
-	static function getCurrentModel(): array {
-		global $post;
-
-		return $post->to_array();
 	}
 
 	static function createModelMeta(int $postId, string $key, $value): bool {

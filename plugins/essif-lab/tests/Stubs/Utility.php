@@ -4,21 +4,21 @@ namespace TNO\EssifLab\Tests\Stubs;
 
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
-use TNO\EssifLab\Utilities\WordPress;
+use TNO\EssifLab\Utilities\WP;
 
 class Utility extends BaseUtility {
 	private $history = [];
 
 	protected $callbackTriggeringFunctions = [
-		WordPress::ADD_ACTION => [self::class, 'addHook'],
-		WordPress::ADD_FILTER => [self::class, 'addHook'],
-		WordPress::ADD_META_BOX => [self::class, 'addMetaBox'],
+		WP::ADD_ACTION => [self::class, 'addHook'],
+		WP::ADD_FILTER => [self::class, 'addHook'],
+		WP::ADD_META_BOX => [self::class, 'addMetaBox'],
 	];
 
 	protected $valueReturningFunctions = [
 		BaseUtility::GET_CURRENT_MODEL => [self::class, 'getCurrentModel'],
 		BaseUtility::GET_MODEL_META => [self::class, 'getModelMeta'],
-		BaseUtility::GET_MODELS => [self::class, 'getModels']
+		BaseUtility::GET_MODELS => [self::class, 'getModels'],
 	];
 
 	function call(string $name, ...$parameters) {
@@ -32,8 +32,10 @@ class Utility extends BaseUtility {
 
 		if (array_key_exists($name, $this->valueReturningFunctions)) {
 			$callback = $this->valueReturningFunctions[$name];
+
 			return $callback(...$parameters);
 		}
+
 		return null;
 	}
 
@@ -56,11 +58,12 @@ class Utility extends BaseUtility {
 		$callback();
 	}
 
-	static function getCurrentModel(): array {
-		return [
+	static function getCurrentModel(): Model {
+		return new Model([
 			Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 1,
-			Constants::MANAGER_TYPE_ID_CRITERIA_NAME => 'model'
-		];
+			Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
+			Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',
+		]);
 	}
 
 	static function getModelMeta(): array {
@@ -73,7 +76,7 @@ class Utility extends BaseUtility {
 				Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 1,
 				Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
 				Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',
-			])
+			]),
 		];
 	}
 }
