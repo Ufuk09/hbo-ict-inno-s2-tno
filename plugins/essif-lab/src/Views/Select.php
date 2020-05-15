@@ -12,7 +12,7 @@ class Select extends BaseView {
 			return '';
 		}
 		
-		$name = $this->integration->getApplication()->getNamespace() . '['.Constants::ACTION_NAME_ADD_RELATION.']';
+		$name = $this->integration->getApplication()->getNamespace() . '['.Constants::ACTION_NAME_ADD_RELATION.']['.$this->model->getTypeName().']';
 		return '<select name="'.$name.'">'.$this->renderItems().'</select>';
 	}
 

@@ -31,6 +31,8 @@ abstract class Constants {
 
 	const FIELD_TYPE_SIGNATURE = 'signature';
 
+	const ACTION_NAME_RELATION_ACTION = 'relation_action';
+
 	const TYPE_DEFAULT_ATTRIBUTE_NAMES = [
 		self::TYPE_INSTANCE_IDENTIFIER_ATTR,
 		self::TYPE_INSTANCE_TITLE_ATTR,

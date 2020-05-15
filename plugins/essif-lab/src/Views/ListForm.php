@@ -2,6 +2,7 @@
 
 namespace TNO\EssifLab\Views;
 
+use TNO\EssifLab\Constants;
 use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Views\Contracts\BaseView;
@@ -35,6 +36,9 @@ class ListForm extends BaseView {
 	}
 
 	private function renderAddRelationButton() {
-		return '<button class="button btn" type="submit">'.self::ADD_RELATION.'</button>';
+	    $name = $this->integration->getApplication()->getNamespace().'['.Constants::ACTION_NAME_RELATION_ACTION.']';
+	    $value = $this->model->getTypeName();
+
+		return '<button class="button btn" type="submit" name="'.$name.'" value="'.$value.'">'.self::ADD_RELATION.'</button>';
 	}
 }

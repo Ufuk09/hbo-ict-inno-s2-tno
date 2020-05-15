@@ -4,6 +4,7 @@ namespace TNO\EssifLab\Integrations;
 
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
+use TNO\EssifLab\ModelManagers\WordPressPostTypes;
 use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Utilities\WP;
@@ -59,10 +60,16 @@ class WordPress extends BaseIntegration {
 		$this->utility->call(WP::ADD_ACTION, $hook, function ($_, $post) use ($hook) {
 			$namespace = $this->application->getNamespace();
 			if (array_key_exists($namespace, $_POST)) {
-				$new = $this->prepareModelSaveData($_POST[$namespace], $post);
-				$this->utility->call(WP::REMOVE_ALL_ACTIONS_AND_EXEC, $hook, function () use ($post, $new) {
-					$this->executeModelSave($post, $new);
-				});
+                $namespace_data = $_POST[$namespace];
+                if (array_key_exists(Constants::FIELD_TYPE_SIGNATURE, $namespace_data)){
+                    $newData = $this->prepareModelSaveData($namespace_data, $post);
+                    $this->utility->call(WP::REMOVE_ALL_ACTIONS_AND_EXEC, $hook, function () use ($post, $newData) {
+                        $this->executeModelSave($post, $newData);
+                    });
+                } elseif (array_key_exists(Constants::ACTION_NAME_ADD_RELATION, $namespace_data)){
+			        $relation_post_type = $namespace_data[Constants::ACTION_NAME_RELATION_ACTION];
+			        $this->manager->insertRelation(WP::getCurrentModel(), WP::getModel($namespace_data[Constants::ACTION_NAME_ADD_RELATION][$relation_post_type]));
+                }
 			}
 		}, 10, 2);
 	}
