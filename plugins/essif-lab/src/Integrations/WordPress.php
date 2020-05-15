@@ -4,7 +4,6 @@ namespace TNO\EssifLab\Integrations;
 
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
-use TNO\EssifLab\ModelManagers\WordPressPostTypes;
 use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Utilities\Exceptions\ExistingRelation;
@@ -61,19 +60,22 @@ class WordPress extends BaseIntegration {
 		$this->utility->call(WP::ADD_ACTION, $hook, function ($_, $post) use ($hook) {
 			$namespace = $this->application->getNamespace();
 			if (array_key_exists($namespace, $_POST)) {
-                $namespace_data = $_POST[$namespace];
-                if (array_key_exists(Constants::FIELD_TYPE_SIGNATURE, $namespace_data)){
-                    $newData = $this->prepareModelSaveData($namespace_data, $post);
-                    $this->utility->call(WP::REMOVE_ALL_ACTIONS_AND_EXEC, $hook, function () use ($post, $newData) {
-                        $this->executeModelSave($post, $newData);
-                    });
-                } elseif (array_key_exists(Constants::ACTION_NAME_ADD_RELATION, $namespace_data)){
-			        $relation_post_type = $namespace_data[Constants::ACTION_NAME_RELATION_ACTION];
-			        if(in_array(WP::getModel($namespace_data[Constants::ACTION_NAME_ADD_RELATION][$relation_post_type]), $this->manager->selectAllRelations(WP::getCurrentModel()))){
-			            throw new ExistingRelation($namespace_data[Constants::ACTION_NAME_RELATION_ACTION]);
-                    }
-			        $this->manager->insertRelation(WP::getCurrentModel(), WP::getModel($namespace_data[Constants::ACTION_NAME_ADD_RELATION][$relation_post_type]));
-                }
+				$namespace_data = $_POST[$namespace];
+				if (array_key_exists(Constants::FIELD_TYPE_SIGNATURE, $namespace_data)) {
+					$newData = $this->prepareModelSaveData($namespace_data, $post);
+					$this->utility->call(WP::REMOVE_ALL_ACTIONS_AND_EXEC, $hook, function () use ($post, $newData) {
+						$this->executeModelSave($post, $newData);
+					});
+				} elseif (array_key_exists(Constants::ACTION_NAME_ADD_RELATION, $namespace_data)) {
+					$relation_post_type = $namespace_data[Constants::ACTION_NAME_RELATION_ACTION];
+					$from = $this->utility->call(BaseUtility::GET_CURRENT_MODEL);
+					$to = $this->utility->call(BaseUtility::GET_MODEL, $namespace_data[Constants::ACTION_NAME_ADD_RELATION][$relation_post_type]);
+					$relations = $this->manager->selectAllRelations($from, $to);
+					if (in_array($to, $relations)) {
+						throw new ExistingRelation($namespace_data[Constants::ACTION_NAME_RELATION_ACTION]);
+					}
+					$this->manager->insertRelation($from, $to);
+				}
 			}
 		}, 10, 2);
 	}
@@ -82,6 +84,7 @@ class WordPress extends BaseIntegration {
 		$content = is_object($post) && property_exists($post, 'post_content') ? $post->post_content : '';
 		$old = json_decode($content, true);
 		$new = is_array($old) ? $old : [];
+
 		return $this->parseFieldSignature($data, $new);
 	}
 
@@ -142,15 +145,15 @@ class WordPress extends BaseIntegration {
 		});
 	}
 
-	private function renderModelRelation(Model $parent, Model $related): string {
-		$formItems = $this->generateFormItems($related);
-		$listItems = $this->generateListItems($parent);
+	private function renderModelRelation(Model $from, Model $to): string {
+		$formItems = $this->generateFormItems($to);
+		$listItems = $this->generateListItems($from, $to);
 		$values = [
 			new MultiDimensional($formItems, TypeList::FORM_ITEMS),
 			new MultiDimensional($listItems, TypeList::LIST_ITEMS),
 		];
 
-		return $this->renderer->renderListAndFormView($this, $related, $values);
+		return $this->renderer->renderListAndFormView($this, $to, $values);
 	}
 
 	private static function generateLabels(Model $model): array {
@@ -194,7 +197,7 @@ class WordPress extends BaseIntegration {
 			'labels' => self::generateLabels($model),
 			'show_in_menu' => $this->application->getNamespace(),
 			'supports' => $model->getFields(),
-            'exclude_from_search' => false,
+			'exclude_from_search' => false,
 		]);
 
 		$args = $model->getTypeArgs();
@@ -215,15 +218,19 @@ class WordPress extends BaseIntegration {
 		}, $this->manager->select($related));
 	}
 
-	private function generateListItems(Model $parent): array {
+	private function generateListItems(Model $from, Model $to): array {
 		return array_map(function (Model $model) {
 			$attr = $model->getAttributes();
 			$ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
-			$title = new Displayable($ID, $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
-			$description = new Displayable($ID, $attr[Constants::TYPE_INSTANCE_DESCRIPTION_ATTR]);
+
+			$titleLabel = array_key_exists(Constants::TYPE_INSTANCE_TITLE_ATTR, $attr) ? $attr[Constants::TYPE_INSTANCE_TITLE_ATTR] : '-';
+			$title = new Displayable($ID, $titleLabel);
+
+			$descriptionLabel = array_key_exists(Constants::TYPE_INSTANCE_DESCRIPTION_ATTR, $attr) ? $attr[Constants::TYPE_INSTANCE_DESCRIPTION_ATTR] : '-';
+			$description = new Displayable($ID, $descriptionLabel);
 
 			return new MultiDimensional([$title, $description]);
-		}, $this->manager->selectAllRelations($parent));
+		}, $this->manager->selectAllRelations($from, $to));
 	}
 
 	private function parseFieldSignature(array $data, array $new): array {

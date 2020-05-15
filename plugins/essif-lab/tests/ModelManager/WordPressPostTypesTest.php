@@ -14,7 +14,7 @@ class WordPressPostTypesTest extends TestCase {
 		$subject = new WordPressPostTypes($this->application, $this->utility);
 		$modelWithoutId = new Model();
 
-		$result = $subject->selectAllRelations($modelWithoutId);
+		$result = $subject->selectAllRelations($modelWithoutId, $modelWithoutId);
 
 		$history = $this->utility->getHistoryByFuncName(BaseUtility::GET_CURRENT_MODEL);
 		$this->assertNotEmpty($history);
