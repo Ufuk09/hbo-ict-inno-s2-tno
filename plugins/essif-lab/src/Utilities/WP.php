@@ -102,15 +102,12 @@ class WP extends BaseUtility {
     }
 
 	static function getModels(array $args = []): array {
-        if (!array_key_exists("post__in", $args)){
-            return array_map(function ($post) {
-                return self::modelFactory($post->to_array());
-            }, get_posts(array_merge([
-                'numberposts' => -1,
-                Constants::MODEL_TYPE_INDICATOR => 'any',
-            ], $args)));
-        }
-		return array_map("self::getModel", array_map('intval', $args["post__in"]));
+        return array_map(function ($post) {
+            return self::modelFactory($post->to_array());
+        }, get_posts(array_merge([
+            'numberposts' => -1,
+            Constants::MODEL_TYPE_INDICATOR => 'any',
+        ], $args)));
 	}
 
 	static function getCurrentModel(): ?Model {

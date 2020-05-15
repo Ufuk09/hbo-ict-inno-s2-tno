@@ -194,6 +194,7 @@ class WordPress extends BaseIntegration {
 			'labels' => self::generateLabels($model),
 			'show_in_menu' => $this->application->getNamespace(),
 			'supports' => $model->getFields(),
+            'exclude_from_search' => false,
 		]);
 
 		$args = $model->getTypeArgs();
