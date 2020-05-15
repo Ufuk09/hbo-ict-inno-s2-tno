@@ -20,7 +20,7 @@ class HookTest extends TestCase {
 		$actual = $this->subject->getTypeArgs();
 
 		$this->assertIsArray($actual);
-		$this->assertFalse($actual[Constants::TYPE_ARG_HIDE_FROM_NAV]);
+		$this->assertTrue($actual[Constants::TYPE_ARG_HIDE_FROM_NAV]);
 	}
 
 	/** @test */
