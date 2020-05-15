@@ -7,6 +7,7 @@ use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
 use TNO\EssifLab\ModelManagers\WordPressPostTypes;
 use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
+use TNO\EssifLab\Utilities\Exceptions\ExistingRelation;
 use TNO\EssifLab\Utilities\WP;
 use TNO\EssifLab\Views\Items\Displayable;
 use TNO\EssifLab\Views\Items\MultiDimensional;
@@ -68,6 +69,9 @@ class WordPress extends BaseIntegration {
                     });
                 } elseif (array_key_exists(Constants::ACTION_NAME_ADD_RELATION, $namespace_data)){
 			        $relation_post_type = $namespace_data[Constants::ACTION_NAME_RELATION_ACTION];
+			        if(in_array(WP::getModel($namespace_data[Constants::ACTION_NAME_ADD_RELATION][$relation_post_type]), $this->manager->selectAllRelations(WP::getCurrentModel()))){
+			            throw new ExistingRelation($namespace_data[Constants::ACTION_NAME_RELATION_ACTION]);
+                    }
 			        $this->manager->insertRelation(WP::getCurrentModel(), WP::getModel($namespace_data[Constants::ACTION_NAME_ADD_RELATION][$relation_post_type]));
                 }
 			}
