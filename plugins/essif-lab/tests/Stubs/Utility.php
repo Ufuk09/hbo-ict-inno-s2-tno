@@ -42,9 +42,9 @@ class Utility extends BaseUtility {
 	 * @return History[]
 	 */
 	function getHistoryByFuncName(string $funcName): array {
-		return array_filter($this->history, function (History $history) use ($funcName) {
+		return array_slice(array_filter($this->history, function (History $history) use ($funcName) {
 			return $history->getFuncName() === $funcName;
-		});
+		}), 0);
 	}
 
 	static function addHook(string $hook, callable $callback, int $priority = 10, int $accepted_args = 1): void {

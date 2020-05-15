@@ -83,6 +83,20 @@ class WordPressTest extends TestCase {
 	}
 
 	/** @test */
+	function registers_to_hide_nav_for_certain_models() {
+		$this->subject->install();
+
+		$history = $this->utility->getHistoryByFuncName(BaseUtility::CREATE_MODEL_TYPE);
+		$hook = $history[1];
+		$target = $history[5];
+		$input = $history[2];
+
+		$this->assertFalse($hook->getParams()[1]['show_ui']);
+		$this->assertFalse($target->getParams()[1]['show_ui']);
+		$this->assertFalse($input->getParams()[1]['show_ui']);
+	}
+
+	/** @test */
 	function registers_model_relations_when_running_install() {
 		$this->subject->install();
 

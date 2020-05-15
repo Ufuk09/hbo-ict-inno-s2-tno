@@ -124,7 +124,7 @@ class WordPress extends BaseIntegration {
 
 		$args = $model->getTypeArgs();
 		if (array_key_exists(Constants::TYPE_ARG_HIDE_FROM_NAV, $args)) {
-			$parsed['show_ui'] = $args[Constants::TYPE_ARG_HIDE_FROM_NAV];
+			$args['show_ui'] = ! $args[Constants::TYPE_ARG_HIDE_FROM_NAV];
 			unset($args[Constants::TYPE_ARG_HIDE_FROM_NAV]);
 		}
 
