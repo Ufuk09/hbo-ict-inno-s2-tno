@@ -7,6 +7,7 @@ use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
 use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Utilities\Exceptions\ExistingRelation;
+use TNO\EssifLab\Utilities\Exceptions\NotExistingRelation;
 use TNO\EssifLab\Utilities\WP;
 use TNO\EssifLab\Views\Items\Displayable;
 use TNO\EssifLab\Views\Items\MultiDimensional;
@@ -66,7 +67,7 @@ class WordPress extends BaseIntegration {
 					$this->utility->call(WP::REMOVE_ALL_ACTIONS_AND_EXEC, $hook, function () use ($post, $newData) {
 						$this->executeModelSave($post, $newData);
 					});
-				} elseif (array_key_exists(Constants::ACTION_NAME_ADD_RELATION, $namespace_data)) {
+				} elseif (array_key_exists(Constants::ACTION_NAME_ADD_RELATION, $namespace_data) && !array_key_exists(Constants::ACTION_NAME_REMOVE_RELATION, $namespace_data)) {
 					$relation_post_type = $namespace_data[Constants::ACTION_NAME_RELATION_ACTION];
 					$from = $this->utility->call(BaseUtility::GET_CURRENT_MODEL);
 					$to = $this->utility->call(BaseUtility::GET_MODEL, $namespace_data[Constants::ACTION_NAME_ADD_RELATION][$relation_post_type]);
@@ -75,7 +76,17 @@ class WordPress extends BaseIntegration {
 						throw new ExistingRelation($namespace_data[Constants::ACTION_NAME_RELATION_ACTION]);
 					}
 					$this->manager->insertRelation($from, $to);
-				}
+					$_POST[$namespace] = [];
+				} elseif (array_key_exists(Constants::ACTION_NAME_REMOVE_RELATION, $namespace_data)) {
+                    $from = $this->utility->call(BaseUtility::GET_CURRENT_MODEL);
+                    $to = $this->utility->call(BaseUtility::GET_MODEL, $namespace_data[Constants::ACTION_NAME_REMOVE_RELATION]);
+                    $relations = $this->manager->selectAllRelations($from, $to);
+                    if (!in_array($to, $relations)) {
+                        throw new NotExistingRelation($from->getTypeName(), $to->getTypeName());
+                    }
+                    $this->manager->deleteRelation($from, $to);
+                    $_POST[$namespace] = [];
+                }
 			}
 		}, 10, 2);
 	}

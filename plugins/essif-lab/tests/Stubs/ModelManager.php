@@ -23,6 +23,8 @@ class ModelManager extends BaseModelManager {
      */
     private $lastModel2ItsCalledWith = [];
 
+    private $relations = [];
+
 	function insert(Model $model): bool {
 		return true;
 	}
@@ -47,10 +49,17 @@ class ModelManager extends BaseModelManager {
 
 	function insertRelation(Model $from, Model $to): bool {
         $this->callRenderer(self::MODEL_MANAGER, $from, $to);
+        $this->relations[] = $to;
 		return true;
 	}
 
 	function deleteRelation(Model $from, Model $to): bool {
+        $this->callRenderer(self::MODEL_MANAGER, $from, $to);
+        foreach ($this->relations as $key => $model){
+            if($model == $to){
+                unset($key, $this->relations);
+            }
+        }
 		return true;
 	}
 
@@ -59,13 +68,14 @@ class ModelManager extends BaseModelManager {
 	}
 
 	function selectAllRelations(Model $from, Model $to): array {
-        return [
-            new ConcreteModel([
-                Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 1,
-                Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
-                Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',
-            ])
-        ];
+        return !empty($this->relations) ? $this->relations :
+            [
+                new ConcreteModel([
+                    Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 1,
+                    Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
+                    Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',
+                ])
+            ];
 	}
 
     public function isCalled(string $manager): bool {

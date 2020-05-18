@@ -14,7 +14,7 @@ use TNO\EssifLab\Utilities\WP;
 class WordPressTest extends TestCase {
 	protected $subject;
 
-	protected function setUp(): void {
+    protected function setUp(): void {
 		parent::setUp();
 		$this->subject = new WordPress($this->application, $this->manager, $this->renderer, $this->utility);
 	}
@@ -90,11 +90,8 @@ class WordPressTest extends TestCase {
 
     /** @test */
     function installs_all_model_types_their_save_handlers_and_adds_a_relation() {
-        $hook = new Hook([Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 5]);
-        $_POST['namespace'] = [];
-        $_POST['namespace'][Constants::ACTION_NAME_ADD_RELATION] = ['hook' => $hook->getAttributes()[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR]];
-        $_POST['namespace'][Constants::ACTION_NAME_RELATION_ACTION] = 'hook';
-        $this->subject->install();
+        $id = 5;
+        $this->create_a_relation($id);
 
         $managerWasCalled = $this->manager->isCalled(ModelManager::MODEL_MANAGER);
         $this->assertTrue($managerWasCalled);
@@ -107,6 +104,31 @@ class WordPressTest extends TestCase {
 
         $modelIds = [$model1->getAttributes()[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR], $model2->getAttributes()[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR]];
         $this->assertContains(5, $modelIds);
+    }
+
+    /** @test */
+    function installs_all_model_types_their_save_handlers_and_adds_a_relation_and_then_removes_it() {
+        $id = 5;
+        $this->create_a_relation($id);
+        $_POST['namespace'] = [];
+        $_POST['namespace'][Constants::ACTION_NAME_REMOVE_RELATION] = $id;
+        $this->subject->install();
+
+        $managerWasCalled = $this->manager->isCalled(ModelManager::MODEL_MANAGER);
+        $this->assertTrue($managerWasCalled);
+
+        $model1 = $this->manager->getModel1ItsCalledWith(ModelManager::MODEL_MANAGER);
+        $this->assertNotEmpty($model1);
+
+        $model2 = $this->manager->getModel2ItsCalledWith(ModelManager::MODEL_MANAGER);
+        $this->assertNotEmpty($model2);
+
+        $from = $this->utility->call(BaseUtility::GET_CURRENT_MODEL);
+        $to = $this->utility->call(BaseUtility::GET_MODEL, $id);
+        $relations = $this->manager->selectAllRelations($from, $to);
+        foreach ($relations as $model){
+            $this->assertFalse($model == $to);
+        }
     }
 
 	/** @test */
@@ -183,4 +205,12 @@ class WordPressTest extends TestCase {
 		$title = $entry->getParams()[1];
 		$this->assertEquals('Signature', $title);
 	}
+
+    private function create_a_relation($id): void {
+        $hook = new Hook([Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => $id]);
+        $_POST['namespace'] = [];
+        $_POST['namespace'][Constants::ACTION_NAME_ADD_RELATION] = ['hook' => $hook->getAttributes()[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR]];
+        $_POST['namespace'][Constants::ACTION_NAME_RELATION_ACTION] = 'hook';
+        $this->subject->install();
+    }
 }
