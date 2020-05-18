@@ -3,11 +3,26 @@
 namespace TNO\EssifLab\Tests\Stubs;
 
 use TNO\EssifLab\Constants;
+use TNO\EssifLab\Integrations\Contracts\Integration;
 use TNO\EssifLab\ModelManagers\Contracts\BaseModelManager;
 use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Tests\Stubs\Model as ConcreteModel;
 
 class ModelManager extends BaseModelManager {
+    const MODEL_MANAGER = 'ModelManager';
+
+    private $isCalled = [];
+
+    /**
+     * @var Model[]
+     */
+    private $lastModel1ItsCalledWith = [];
+
+    /**
+     * @var Model[]
+     */
+    private $lastModel2ItsCalledWith = [];
+
 	function insert(Model $model): bool {
 		return true;
 	}
@@ -31,6 +46,7 @@ class ModelManager extends BaseModelManager {
 	}
 
 	function insertRelation(Model $from, Model $to): bool {
+        $this->callRenderer(self::MODEL_MANAGER, $from, $to);
 		return true;
 	}
 
@@ -51,4 +67,24 @@ class ModelManager extends BaseModelManager {
             ])
         ];
 	}
+
+    public function isCalled(string $manager): bool {
+        return array_key_exists($manager, $this->isCalled) && boolval($this->isCalled[$manager]);
+    }
+
+    public function getModel1ItsCalledWith(string $manager): ?Model {
+        return array_key_exists($manager, $this->lastModel1ItsCalledWith)
+            ? $this->lastModel1ItsCalledWith[$manager] : null;
+    }
+
+    public function getModel2ItsCalledWith(string $manager): ?Model {
+        return array_key_exists($manager, $this->lastModel2ItsCalledWith)
+            ? $this->lastModel2ItsCalledWith[$manager] : null;
+    }
+
+    private function callRenderer(string $manager, Model $model1, Model $model2): void {
+        $this->isCalled[$manager] = true;
+        $this->lastModel1ItsCalledWith[$manager] = $model1;
+        $this->lastModel2ItsCalledWith[$manager] = $model2;
+    }
 }

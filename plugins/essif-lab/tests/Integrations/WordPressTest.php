@@ -4,6 +4,8 @@ namespace TNO\EssifLab\Tests\Integrations;
 
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\Integrations\WordPress;
+use TNO\EssifLab\Models\Hook;
+use TNO\EssifLab\Tests\Stubs\ModelManager;
 use TNO\EssifLab\Tests\Stubs\ModelRenderer;
 use TNO\EssifLab\Tests\TestCase;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
@@ -85,6 +87,27 @@ class WordPressTest extends TestCase {
 		$history = $this->utility->getHistoryByFuncName(WP::REMOVE_ALL_ACTIONS_AND_EXEC);
 		$this->assertNotEmpty($history);
 	}
+
+    /** @test */
+    function installs_all_model_types_their_save_handlers_and_adds_a_relation() {
+        $hook = new Hook([Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 5]);
+        $_POST['namespace'] = [];
+        $_POST['namespace'][Constants::ACTION_NAME_ADD_RELATION] = ['hook' => $hook->getAttributes()[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR]];
+        $_POST['namespace'][Constants::ACTION_NAME_RELATION_ACTION] = 'hook';
+        $this->subject->install();
+
+        $managerWasCalled = $this->manager->isCalled(ModelManager::MODEL_MANAGER);
+        $this->assertTrue($managerWasCalled);
+
+        $model1 = $this->manager->getModel1ItsCalledWith(ModelManager::MODEL_MANAGER);
+        $this->assertNotEmpty($model1);
+
+        $model2 = $this->manager->getModel2ItsCalledWith(ModelManager::MODEL_MANAGER);
+        $this->assertNotEmpty($model2);
+
+        $modelIds = [$model1->getAttributes()[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR], $model2->getAttributes()[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR]];
+        $this->assertContains(5, $modelIds);
+    }
 
 	/** @test */
 	function installs_the_relation_components_for_the_model_currently_being_viewed() {
