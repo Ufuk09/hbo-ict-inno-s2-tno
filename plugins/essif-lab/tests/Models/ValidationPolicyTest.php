@@ -4,7 +4,7 @@ namespace TNO\EssifLab\Tests\Models;
 
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\Models\Credential;
-use TNO\EssifLab\Models\Hook;
+use TNO\EssifLab\Models\Target;
 use TNO\EssifLab\Models\ValidationPolicy;
 use TNO\EssifLab\Tests\TestCase;
 
@@ -47,8 +47,8 @@ class ValidationPolicyTest extends TestCase {
 		$actual = $this->subject->getRelations();
 
 		$expected = [
-			Hook::class,
-			Credential::class
+			Target::class,
+			Credential::class,
 		];
 
 		$this->assertEquals($expected, $actual);
