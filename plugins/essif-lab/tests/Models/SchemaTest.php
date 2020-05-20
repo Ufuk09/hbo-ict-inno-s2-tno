@@ -44,7 +44,9 @@ class SchemaTest extends TestCase {
 	function should_have_fields(): void {
 		$actual = $this->subject->getFields();
 
-		$expected = Constants::TYPE_DEFAULT_FIELDS;
+		$expected = array_merge(Constants::TYPE_DEFAULT_FIELDS, [
+			Constants::FIELD_TYPE_SCHEMA_LOADER
+		]);
 
 		$this->assertEquals($expected, $actual);
 	}

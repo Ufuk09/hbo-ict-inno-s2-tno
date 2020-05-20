@@ -3,24 +3,20 @@
 namespace TNO\EssifLab\Views;
 
 use TNO\EssifLab\Constants;
-use TNO\EssifLab\Views\Contracts\BaseView;
+use TNO\EssifLab\Views\Contracts\BaseField;
 
-class SignatureField extends BaseView {
+class SignatureField extends BaseField {
 	function render(): string {
-		$name = $this->getFieldName();
+		$name = $this->getFieldName(Constants::FIELD_TYPE_SIGNATURE);
 		$value = $this->getFieldValue();
 		$attrs = $this->getElementAttributes([
 			'type' => 'text',
-			'style' => 'width:100%',
+			'class' => 'regular-text',
 			'name' => $name,
 			'value' => $value,
 		]);
 
 		return '<input'.$attrs.'/>';
-	}
-
-	private function getFieldName(): string {
-		return $this->integration->getApplication()->getNamespace().'['.Constants::FIELD_TYPE_SIGNATURE.']';
 	}
 
 	private function getFieldValue(): string {
@@ -35,16 +31,5 @@ class SignatureField extends BaseView {
 		}
 
 		return $json[Constants::FIELD_TYPE_SIGNATURE];
-	}
-
-	private function getElementAttributes(array $attrs = []): string {
-		$parsed = [];
-		foreach ($attrs as $key => $value) {
-			if (! empty($key) && ! empty($value)) {
-				$parsed[] = $key.'="'.$value.'"';
-			}
-		}
-
-		return " ".implode(" ", array_filter($parsed));
 	}
 }

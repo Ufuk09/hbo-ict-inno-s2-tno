@@ -14,7 +14,7 @@ use TNO\EssifLab\Utilities\WP;
 class WordPressTest extends TestCase {
 	protected $subject;
 
-    protected function setUp(): void {
+	protected function setUp(): void {
 		parent::setUp();
 		$this->subject = new WordPress($this->application, $this->manager, $this->renderer, $this->utility);
 	}

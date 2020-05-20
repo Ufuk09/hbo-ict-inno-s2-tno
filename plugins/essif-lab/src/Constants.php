@@ -33,6 +33,8 @@ abstract class Constants {
 
 	const ACTION_NAME_RELATION_ACTION = 'relation_action';
 
+	const FIELD_TYPE_SCHEMA_LOADER = 'schema_loader';
+
 	const TYPE_DEFAULT_ATTRIBUTE_NAMES = [
 		self::TYPE_INSTANCE_IDENTIFIER_ATTR,
 		self::TYPE_INSTANCE_TITLE_ATTR,
