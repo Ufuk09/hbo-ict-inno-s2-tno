@@ -83,7 +83,6 @@ class WordPressTest extends TestCase {
 		$this->subject->install();
 
 		$history = $this->utility->getHistoryByFuncName(WP::REMOVE_ALL_ACTIONS_AND_EXEC);
-		var_dump($history);
 		$this->assertNotEmpty($history);
 	}
 
