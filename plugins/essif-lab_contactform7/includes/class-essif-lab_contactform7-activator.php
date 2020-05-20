@@ -34,8 +34,10 @@ class Essif_Lab_contactform7_Activator {
          *  Activate the hook
          */
         $hook = "['contact-form-7' => 'Contact Form 7']";
-        $usedHook = apply_filters("essif-lab_select_hook");
-        if (!$usedHook.contains($hook)) {
+        $usedHook = apply_filters("essif-lab_select_hook", []);
+        // Temp placeholder to prevent errors
+        $usedHook = [];
+        if (in_array($hook, $usedHook)) {
             do_action("essif-lab_insert_hook", $hook);
         }
     }
