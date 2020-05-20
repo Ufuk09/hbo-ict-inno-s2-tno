@@ -10,7 +10,7 @@ class ValidationPolicy extends BaseModel {
 	protected $plural = 'validation policies';
 
 	protected $relations = [
-		Hook::class,
+		Target::class,
 		Credential::class,
 	];
 }
