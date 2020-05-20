@@ -2,10 +2,13 @@
 
 namespace TNO\EssifLab\Integrations;
 
+use InvalidArgumentException;
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
 use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
+use TNO\EssifLab\Utilities\Exceptions\ExistingRelation;
+use TNO\EssifLab\Utilities\Exceptions\NotExistingRelation;
 use TNO\EssifLab\Utilities\WP;
 use TNO\EssifLab\Views\Items\Displayable;
 use TNO\EssifLab\Views\Items\MultiDimensional;
@@ -56,29 +59,10 @@ class WordPress extends BaseIntegration {
 
 	private function registerModelSaveHandler(Model $model): void {
 		$hook = 'save_post_'.$model->getTypeName();
-		$this->utility->call(WP::ADD_ACTION, $hook, function ($_, $post) use ($hook) {
-			$namespace = $this->application->getNamespace();
-			if (array_key_exists($namespace, $_POST)) {
-				$new = $this->prepareModelSaveData($_POST[$namespace], $post);
-				$this->utility->call(WP::REMOVE_ALL_ACTIONS_AND_EXEC, $hook, function () use ($post, $new) {
-					$this->executeModelSave($post, $new);
-				});
-			}
+		$this->utility->call(WP::ADD_ACTION, $hook, function ($_, $post) {
+			$handler = new WordPressDataHandler($this->application, $this->manager, $this->renderer, $this->utility);
+			$handler->install();
 		}, 10, 2);
-	}
-
-	private function prepareModelSaveData($data, $post): array {
-		$content = is_object($post) && property_exists($post, 'post_content') ? $post->post_content : '';
-		$old = json_decode($content, true);
-		$new = is_array($old) ? $old : [];
-		return $this->parseFieldSignature($data, $new);
-	}
-
-	private function executeModelSave($post, array $new): void {
-		if (! empty($new)) {
-			$post->post_content = json_encode($new);
-			$this->utility->call(BaseUtility::UPDATE_MODEL, $post);
-		}
 	}
 
 	private function registerModelComponents(Model $model): void {
@@ -131,15 +115,56 @@ class WordPress extends BaseIntegration {
 		});
 	}
 
-	private function renderModelRelation(Model $parent, Model $related): string {
-		$formItems = $this->generateFormItems($related);
-		$listItems = $this->generateListItems($parent);
+	private function renderModelRelation(Model $from, Model $to): string {
+		$formItems = $this->generateFormItems($to);
+		$listItems = $this->generateListItems($from, $to);
 		$values = [
 			new MultiDimensional($formItems, TypeList::FORM_ITEMS),
 			new MultiDimensional($listItems, TypeList::LIST_ITEMS),
 		];
 
-		return $this->renderer->renderListAndFormView($this, $related, $values);
+		return $this->renderer->renderListAndFormView($this, $to, $values);
+	}
+
+	private function generateTypeArgs(Model $model): array {
+		$default = array_merge(self::DEFAULT_TYPE_ARGS, [
+			'labels' => self::generateLabels($model),
+			'show_in_menu' => $this->application->getNamespace(),
+			'supports' => $model->getFields(),
+			'exclude_from_search' => false,
+		]);
+
+		$args = $model->getTypeArgs();
+		if (array_key_exists(Constants::TYPE_ARG_HIDE_FROM_NAV, $args)) {
+			$args['show_ui'] = ! $args[Constants::TYPE_ARG_HIDE_FROM_NAV];
+			unset($args[Constants::TYPE_ARG_HIDE_FROM_NAV]);
+		}
+
+		return array_merge($default, $args);
+	}
+
+	private function generateFormItems(Model $related): array {
+		return array_map(function (Model $model) {
+			$attr = $model->getAttributes();
+			$ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
+
+			return new Displayable($ID, $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
+		}, $this->manager->select($related));
+	}
+
+	private function generateListItems(Model $from, Model $to): array {
+		return array_map(function (Model $model) {
+			$attr = $model->getAttributes();
+			$ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
+
+			$titleLabel = array_key_exists(Constants::TYPE_INSTANCE_TITLE_ATTR, $attr) ? $attr[Constants::TYPE_INSTANCE_TITLE_ATTR] : '-';
+			$title = new Displayable($ID, $titleLabel);
+
+			$descriptionLabel = array_key_exists(Constants::TYPE_INSTANCE_DESCRIPTION_ATTR, $attr) ? $attr[Constants::TYPE_INSTANCE_DESCRIPTION_ATTR] : '-';
+			$description = new Displayable($ID, $descriptionLabel);
+
+			return new MultiDimensional([$title, $description]);
+		}, $this->manager->selectAllRelations($from, $to));
 	}
 
 	private static function generateLabels(Model $model): array {
@@ -176,49 +201,5 @@ class WordPress extends BaseIntegration {
 
 	private static function toTitleCase(string $v): string {
 		return implode(' ', array_map('ucfirst', explode(' ', $v)));
-	}
-
-	private function generateTypeArgs(Model $model): array {
-		$default = array_merge(self::DEFAULT_TYPE_ARGS, [
-			'labels' => self::generateLabels($model),
-			'show_in_menu' => $this->application->getNamespace(),
-			'supports' => $model->getFields(),
-		]);
-
-		$args = $model->getTypeArgs();
-		if (array_key_exists(Constants::TYPE_ARG_HIDE_FROM_NAV, $args)) {
-			$args['show_ui'] = ! $args[Constants::TYPE_ARG_HIDE_FROM_NAV];
-			unset($args[Constants::TYPE_ARG_HIDE_FROM_NAV]);
-		}
-
-		return array_merge($default, $args);
-	}
-
-	private function generateFormItems(Model $related): array {
-		return array_map(function (Model $model) {
-			$attr = $model->getAttributes();
-			$ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
-
-			return new Displayable($ID, $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
-		}, $this->manager->select($related));
-	}
-
-	private function generateListItems(Model $parent): array {
-		return array_map(function (Model $model) {
-			$attr = $model->getAttributes();
-			$ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
-			$title = new Displayable($ID, $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
-			$description = new Displayable($ID, $attr[Constants::TYPE_INSTANCE_DESCRIPTION_ATTR]);
-
-			return new MultiDimensional([$title, $description]);
-		}, $this->manager->selectAllRelations($parent));
-	}
-
-	private function parseFieldSignature(array $data, array $new): array {
-		if (array_key_exists(Constants::FIELD_TYPE_SIGNATURE, $data)) {
-			$new[Constants::FIELD_TYPE_SIGNATURE] = $data[Constants::FIELD_TYPE_SIGNATURE];
-		}
-
-		return $new;
 	}
 }

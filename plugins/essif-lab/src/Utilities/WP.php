@@ -97,13 +97,17 @@ class WP extends BaseUtility {
 		return wp_delete_post($postId, true);
 	}
 
+    static function getModel(int $id): Model {
+        return self::modelFactory(get_post($id)->to_array());
+    }
+
 	static function getModels(array $args = []): array {
-		return array_map(function ($post) {
-			return self::modelFactory($post->to_array());
-		}, get_posts(array_merge([
-			'numberposts' => -1,
-			Constants::MODEL_TYPE_INDICATOR => 'any',
-		], $args)));
+        return array_map(function ($post) {
+            return self::modelFactory($post->to_array());
+        }, get_posts(array_merge([
+            'numberposts' => -1,
+            Constants::MODEL_TYPE_INDICATOR => 'any',
+        ], $args)));
 	}
 
 	static function getCurrentModel(): ?Model {

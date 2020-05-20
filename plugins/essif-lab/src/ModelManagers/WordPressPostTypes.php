@@ -56,8 +56,11 @@ class WordPressPostTypes extends BaseModelManager {
 			throw new MissingIdentifier($to->getSingularName());
 		}
 
-		$fromTo = boolval($this->utility->call(BaseUtility::CREATE_MODEL_META, $fromId, $this->relationKey, $toId));
-		$toFrom = boolval($this->utility->call(BaseUtility::CREATE_MODEL_META, $toId, $this->relationKey, $fromId));
+		$relationFromToKey = $this->relationKey.$to->getTypeName();
+		$fromTo = boolval($this->utility->call(BaseUtility::CREATE_MODEL_META, $fromId, $relationFromToKey, $toId));
+
+		$relationToFromKey = $this->relationKey.$from->getTypeName();
+		$toFrom = boolval($this->utility->call(BaseUtility::CREATE_MODEL_META, $toId, $relationToFromKey, $fromId));
 
 		return $fromTo && $toFrom;
 	}
@@ -70,27 +73,40 @@ class WordPressPostTypes extends BaseModelManager {
 			throw new MissingIdentifier($to->getSingularName());
 		}
 
-		$fromTo = $this->utility->call(BaseUtility::DELETE_MODEL_META, $fromId, $this->relationKey, $toId);
-		$toFrom = $this->utility->call(BaseUtility::DELETE_MODEL_META, $toId, $this->relationKey, $fromId);
+		$relationFromToKey = $this->relationKey.$to->getTypeName();
+		$fromTo = $this->utility->call(BaseUtility::DELETE_MODEL_META, $fromId, $relationFromToKey, $toId);
+
+		$relationToFromKey = $this->relationKey.$from->getTypeName();
+		$toFrom = $this->utility->call(BaseUtility::DELETE_MODEL_META, $toId, $relationToFromKey, $fromId);
 
 		return $fromTo && $toFrom;
 	}
 
-	function deleteAllRelations(Model $model): bool {
-		$id = $this->getGivenOrCurrentModelId($model);
-
+	function deleteAllRelations(Model $from): bool {
+		$result = true;
+		$id = $this->getGivenOrCurrentModelId($from);
 		$relationIds = get_post_meta($id, $this->relationKey);
-		foreach ($relationIds as $relationId) {
-			$this->utility->call(BaseUtility::DELETE_MODEL_META, $relationId, $this->relationKey, $id);
-		}
+		BaseModelManager::forEachModel($from->getRelations(), function (Model $to) use (&$result, $from, $id, $relationIds) {
+			if ($result) {
+				$relationFromToKey = $this->relationKey.$to->getTypeName();
+				$relationToFromKey = $this->relationKey.$from->getTypeName();
+				$result = $this->utility->call(BaseUtility::DELETE_MODEL_META, $id, $relationFromToKey);
+				foreach ($relationIds as $relationId) {
+					if ($result) {
+						$result = $this->utility->call(BaseUtility::DELETE_MODEL_META, $relationId, $relationToFromKey, $id);
+					}
+				}
+			}
+		});
 
-		return $this->utility->call(BaseUtility::DELETE_MODEL_META, $id, $this->relationKey);
+		return $result;
 	}
 
-	function selectAllRelations(Model $model): array {
-		$id = $this->getGivenOrCurrentModelId($model);
+	function selectAllRelations(Model $from, Model $to): array {
+		$fromId = $this->getGivenOrCurrentModelId($from);
 
-		$relationIds = $this->utility->call(BaseUtility::GET_MODEL_META, $id, $this->relationKey);
+		$relationFromToKey = $this->relationKey.$to->getTypeName();
+		$relationIds = $this->utility->call(BaseUtility::GET_MODEL_META, $fromId, $relationFromToKey);
 
 		$args = array_merge(Constants::TYPE_DEFAULT_TYPE_ARGS, [
 			'post__in' => $relationIds,
