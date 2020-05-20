@@ -13,7 +13,7 @@ abstract class BaseUtility implements Utility {
 
 	public const GET_MODELS = 'getModels';
 
-	public const GET_MODEL = 'get_model';
+	public const GET_MODEL = 'getModel';
 
 	public const GET_CURRENT_MODEL = 'getCurrentModel';
 
