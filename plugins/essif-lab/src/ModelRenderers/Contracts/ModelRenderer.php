@@ -9,4 +9,6 @@ interface ModelRenderer {
 	function renderListAndFormView(Integration $integration, Model $model, array $attrs = []): string;
 
 	function renderFieldSignature(Integration $integration, Model $model, array $attrs = []): string;
+
+	function renderSchemaLoader(Integration $integration, Model $model, array $attrs = []): string;
 }

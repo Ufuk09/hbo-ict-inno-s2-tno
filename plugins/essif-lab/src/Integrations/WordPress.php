@@ -96,7 +96,7 @@ class WordPress extends BaseIntegration {
 			$output = $this->renderModelField($field, $model);
 			if (! empty($output)) {
 				$id = $screen.'_field_'.$field;
-				$title = ucfirst($field);
+				$title = ucfirst(str_replace('_', ' ', $field));
 				$callback = function () use ($output) {
 					print $output;
 				};
@@ -109,6 +109,9 @@ class WordPress extends BaseIntegration {
 		switch ($field) {
 			case Constants::FIELD_TYPE_SIGNATURE:
 				return $this->renderer->renderFieldSignature($this, $model);
+
+			case Constants::FIELD_TYPE_SCHEMA_LOADER:
+				return $this->renderer->renderSchemaLoader($this, $model);
 
 			default:
 				return '';

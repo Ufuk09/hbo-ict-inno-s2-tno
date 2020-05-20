@@ -13,6 +13,7 @@ class Model extends BaseModel {
 	];
 
 	protected $fields = [
-		Constants::FIELD_TYPE_SIGNATURE
+		Constants::FIELD_TYPE_SIGNATURE,
+		Constants::FIELD_TYPE_SCHEMA_LOADER
 	];
 }
