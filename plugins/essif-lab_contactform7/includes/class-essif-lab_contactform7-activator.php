@@ -30,6 +30,7 @@ class Essif_Lab_contactform7_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
+        do_action("essif-lab_insert_hook", "['contact-form-7' => 'Contact Form 7']");
     }
 
 }

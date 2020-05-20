@@ -30,6 +30,7 @@ class Essif_Lab_contactform7_Deactivator {
 	 * @since    1.0.0
 	 */
 	public static function deactivate() {
+        do_action("essif-lab_delete_hook", "['contact-form-7' => 'Contact Form 7']");
 	}
 
 }
