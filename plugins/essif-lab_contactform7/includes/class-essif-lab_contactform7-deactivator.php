@@ -20,8 +20,8 @@
  * @subpackage Essif_Lab_contactform7/includes
  * @author     Duur Klop, Luuk van Houdt, Ruben Sikkens, Ufuk Altinçöp en Weis Mateen <ruben.sikkens@student.hu.nl>
  */
-class Essif_Lab_contactform7_Deactivator {
 
+class Essif_Lab_contactform7_Deactivator {
 	/**
 	 * Short Description. (use period)
 	 *
@@ -30,6 +30,9 @@ class Essif_Lab_contactform7_Deactivator {
 	 * @since    1.0.0
 	 */
 	public static function deactivate() {
+	    /**
+	     *  Deactivate the hook
+	     */
         $hook = "['contact-form-7' => 'Contact Form 7']";
         $usedHook = apply_filters("essif-lab_select_hook");
         if ($usedHook.contains($hook)) {
