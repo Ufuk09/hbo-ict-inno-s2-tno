@@ -83,9 +83,10 @@ class WordPressPostTypes extends BaseModelManager {
 	}
 
 	function deleteAllRelations(Model $from): bool {
+	    // TODO: catch delete calls for custom models
 		$result = true;
 		$id = $this->getGivenOrCurrentModelId($from);
-		$relationIds = get_post_meta($id, $this->relationKey);
+		$relationIds = $this->utility->call(BaseUtility::GET_MODEL_META, $id, $this->relationKey.$from->getTypeName());
 		BaseModelManager::forEachModel($from->getRelations(), function (Model $to) use (&$result, $from, $id, $relationIds) {
 			if ($result) {
 				$relationFromToKey = $this->relationKey.$to->getTypeName();

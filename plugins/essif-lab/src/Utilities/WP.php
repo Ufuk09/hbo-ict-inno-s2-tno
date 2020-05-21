@@ -172,7 +172,7 @@ class WP extends BaseUtility {
 		return add_post_meta($postId, $key, $value, false);
 	}
 
-	static function deleteModelMeta(int $postId, string $key, $value): bool {
+	static function deleteModelMeta(int $postId, string $key, $value = ''): bool {
 		return delete_post_meta($postId, $key, $value);
 	}
 
