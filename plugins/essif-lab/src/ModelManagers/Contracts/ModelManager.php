@@ -23,5 +23,5 @@ interface ModelManager {
 
 	function deleteAllRelations(Model $model): bool;
 
-	function selectAllRelations(Model $model): array;
+	function selectAllRelations(Model $from, Model $to): array;
 }

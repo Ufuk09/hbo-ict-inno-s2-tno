@@ -35,6 +35,10 @@ class ModelRenderer implements \TNO\EssifLab\ModelRenderers\Contracts\ModelRende
 		return $this->callRenderer(self::FIELD_SIGNATURE_RENDERER, $integration, $model, $attrs);
 	}
 
+	function renderSchemaLoader(Integration $integration, Model $model, array $attrs = []): string {
+		return $this->callRenderer(self::FIELD_SIGNATURE_RENDERER, $integration, $model, $attrs);
+	}
+
 	public function isCalled(string $renderer): bool {
 		return array_key_exists($renderer, $this->isCalled) && boolval($this->isCalled[$renderer]);
 	}

@@ -17,6 +17,7 @@ class Utility extends BaseUtility {
 
 	protected $valueReturningFunctions = [
 		BaseUtility::GET_CURRENT_MODEL => [self::class, 'getCurrentModel'],
+        BaseUtility::GET_MODEL => [self::class, 'getModel'],
 		BaseUtility::GET_MODEL_META => [self::class, 'getModelMeta'],
 		BaseUtility::GET_MODELS => [self::class, 'getModels'],
 	];
@@ -57,6 +58,14 @@ class Utility extends BaseUtility {
 	static function addMetaBox($id, $title, $callback, $screen) {
 		$callback();
 	}
+
+    static function getModel(int $id): Model {
+        return new Model([
+            Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => $id,
+            Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
+            Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',
+        ]);
+    }
 
 	static function getCurrentModel(): Model {
 		return new Model([
