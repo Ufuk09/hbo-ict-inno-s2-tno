@@ -26,14 +26,14 @@ define( 'ESSIF_LAB_CONTACTFORM7_VERSION', '1.0.0' );
 
 function activate_essif_lab_contactform7() {
 	require_once plugin_dir_path( __FILE__ ) . 'Application/class-essif-lab_contactform7-activator.php';
-    $act = new Essif_Lab_contactform7_Activator();
-    $act->activate();
+    $activator = new Essif_Lab_contactform7_Activator();
+    $activator->activate();
 }
 
 function deactivate_essif_lab_contactform7() {
 	require_once plugin_dir_path( __FILE__ ) . 'Application/class-essif-lab_contactform7-deactivator.php';
-    $act = new Essif_Lab_contactform7_Deactivator();
-    $act->deactivate();
+    $deactivator = new Essif_Lab_contactform7_Deactivator();
+    $deactivator->deactivate();
 }
 
 register_activation_hook( __FILE__, 'activate_essif_lab_contactform7' );
