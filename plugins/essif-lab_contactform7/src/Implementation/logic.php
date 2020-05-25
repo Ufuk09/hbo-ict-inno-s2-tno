@@ -1,5 +1,7 @@
 <?php
 
+namespace TNO\ContactForm7\Implementation;
+
 class Essif_Lab_Contactform7_Logic {
 
     public function getHook() {

@@ -4,7 +4,11 @@
  * The core plugin class.
  */
 
-require_once plugin_dir_path( dirname( __FILE__ ) ) . 'Implementation/essif-lab_contactform7-test.php';
+//require_once plugin_dir_path( dirname( __FILE__ ) ) . 'Implementation/essif-lab_contactform7-test.php';
+
+namespace TNO\ContactForm7\Application;
+
+use TNO\ContactForm7\Implementation\Essif_Lab_contactform7_Hooks;
 
 class Essif_Lab_contactform7 {
 
@@ -25,9 +29,9 @@ class Essif_Lab_contactform7 {
 	}
 
 	private function load_dependencies() {
-        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'Application/class-essif-lab_contactform7-loader.php';
-        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'Implementation/class-essif-lab_contactform7-hooks.php';
-        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'Implementation/essif-lab_contactform7-button.php';
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'Application/loader.php';
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'Implementation/hooks.php';
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'Implementation/button.php';
 
         $this->loader = new Essif_Lab_contactform7_Loader();
 	}

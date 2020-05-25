@@ -1,9 +1,13 @@
 <?php
 
+namespace TNO\ContactForm7\Application;
+
+use TNO\ContactForm7\Implementation\Essif_Lab_Contactform7_Logic;
+
 class Essif_Lab_contactform7_Deactivator {
 	public function deactivate() {
 
-        require_once plugin_dir_path( __FILE__ ) . '../Implementation/class-essif-lab_contactform7-logic.php';
+        require_once plugin_dir_path( __FILE__ ) . '../Implementation/logic.php';
         $logic = new Essif_Lab_contactform7_Logic();
         $hook = $logic->getHook();
 
@@ -24,7 +28,6 @@ class Essif_Lab_contactform7_Deactivator {
         /**
          *  Deactivate the targets
          */
-        require_once plugin_dir_path( __FILE__ ) . '../Implementation/class-essif-lab_contactform7-logic.php';
         $targets = apply_filters("essif-lab_select_target", $hook);
         if (!empty($targets)) {
             foreach ($targets as $target) {
