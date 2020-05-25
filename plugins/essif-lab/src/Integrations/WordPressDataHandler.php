@@ -67,19 +67,23 @@ class WordPressDataHandler extends BaseIntegration {
 
 	private function handleAddRelation(Model $from, int $id): void {
 		$to = $this->utility->call(BaseUtility::GET_MODEL, $id);
-		$relations = $this->manager->selectAllRelations($from, $to);
+		if (!empty($to)) {
+			$relations = $this->manager->selectAllRelations($from, $to);
 
-		if (! in_array($to, $relations)) {
-			$this->manager->insertRelation($from, $to);
+			if (! in_array($to, $relations)) {
+				$this->manager->insertRelation($from, $to);
+			}
 		}
 	}
 
 	private function handleRemoveRelation(Model $from, int $id): void {
 		$to = $this->utility->call(BaseUtility::GET_MODEL, $id);
-		$relations = $this->manager->selectAllRelations($from, $to);
+		if (!empty($to)) {
+			$relations = $this->manager->selectAllRelations($from, $to);
 
-		if (in_array($to, $relations)) {
-			$this->manager->deleteRelation($from, $to);
+			if (in_array($to, $relations)) {
+				$this->manager->deleteRelation($from, $to);
+			}
 		}
 	}
 }
