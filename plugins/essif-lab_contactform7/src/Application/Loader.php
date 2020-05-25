@@ -9,7 +9,7 @@
 
 namespace TNO\ContactForm7\Application;
 
-class Essif_Lab_contactform7_Loader {
+class Loader {
 
 	protected $actions;
 	protected $filters;

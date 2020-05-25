@@ -8,9 +8,9 @@
 
 namespace TNO\ContactForm7\Application;
 
-use TNO\ContactForm7\Implementation\Essif_Lab_contactform7_Hooks;
+use TNO\ContactForm7\Implementation\Hooks;
 
-class Essif_Lab_contactform7 {
+class Plugin {
 
 	protected $loader;
 	protected $plugin_name;
@@ -29,15 +29,13 @@ class Essif_Lab_contactform7 {
 	}
 
 	private function load_dependencies() {
-        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'Application/loader.php';
-        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'Implementation/hooks.php';
-        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'Implementation/button.php';
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'Implementation/Button.php';
 
-        $this->loader = new Essif_Lab_contactform7_Loader();
+        $this->loader = new Loader();
 	}
 
     private function define_hooks() {
-        $plugin_hooks = new Essif_Lab_contactform7_Hooks( $this->get_plugin_name(), $this->get_version() );
+        $plugin_hooks = new Hooks( $this->get_plugin_name(), $this->get_version() );
         $this->loader->add_action('wp_enqueue_scripts', $plugin_hooks, 'enqueue_scripts');
     }
 

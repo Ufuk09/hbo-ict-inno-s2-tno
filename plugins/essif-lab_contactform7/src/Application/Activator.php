@@ -2,13 +2,12 @@
 
 namespace TNO\ContactForm7\Application;
 
-use TNO\ContactForm7\Implementation\Essif_Lab_Contactform7_Logic;
+use TNO\ContactForm7\Implementation\Logic;
 
-class Essif_Lab_contactform7_Activator {
+class Activator {
     public function activate() {
 
-        require_once plugin_dir_path( __FILE__ ) . '../Implementation/logic.php';
-        $logic = new Essif_Lab_contactform7_Logic();
+        $logic = new Logic();
         $hook = $logic->getHook();
 
         /**

@@ -2,7 +2,7 @@
 
 namespace TNO\ContactForm7\Implementation;
 
-class Essif_Lab_contactform7_Hooks
+class Hooks
 {
     private $plugin_name;
     private $version;

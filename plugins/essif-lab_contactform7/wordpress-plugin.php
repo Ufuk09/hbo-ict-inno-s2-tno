@@ -18,29 +18,25 @@ if (file_exists($classAutoloader)) {
     require_once($classAutoloader);
 }
 
-use TNO\ContactForm7\Application\Essif_Lab_contactform7_Activator;
-use TNO\ContactForm7\Application\Essif_Lab_contactform7_Deactivator;
-use TNO\ContactForm7\Application\Essif_Lab_contactform7;
+use TNO\ContactForm7\Application\Activator;
+use TNO\ContactForm7\Application\Deactivator;
+use TNO\ContactForm7\Application\Plugin;
 
 function activate_essif_lab_contactform7() {
-	require_once plugin_dir_path( __FILE__ ) . 'src/Application/activator.php';
-    $activator = new Essif_Lab_contactform7_Activator();
+    $activator = new Activator();
     $activator->activate();
 }
 
 function deactivate_essif_lab_contactform7() {
-	require_once plugin_dir_path( __FILE__ ) . 'src/Application/deactivator.php';
-    $deactivator = new Essif_Lab_contactform7_Deactivator();
+    $deactivator = new Deactivator();
     $deactivator->deactivate();
 }
 
 register_activation_hook( __FILE__, 'activate_essif_lab_contactform7' );
 register_deactivation_hook( __FILE__, 'deactivate_essif_lab_contactform7' );
 
-require plugin_dir_path( __FILE__ ) . 'src/Application/essif-lab_contactform7.php';
-
 function run_essif_lab_contactform7() {
-	$plugin = new Essif_Lab_contactform7();
+	$plugin = new Plugin();
 	$plugin->run();
 }
 run_essif_lab_contactform7();

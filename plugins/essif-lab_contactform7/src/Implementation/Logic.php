@@ -2,7 +2,7 @@
 
 namespace TNO\ContactForm7\Implementation;
 
-class Essif_Lab_Contactform7_Logic {
+class Logic {
 
     public function getHook() {
         $hook = "['contact-form-7' => 'Contact Form 7']";
