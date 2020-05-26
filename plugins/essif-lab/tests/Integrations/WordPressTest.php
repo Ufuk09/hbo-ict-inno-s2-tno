@@ -199,7 +199,7 @@ class WordPressTest extends TestCase {
 
 			return strpos($id, '_field_') !== false;
 		});
-		$this->assertCount(1, $relations);
+		$this->assertCount(2, $relations);
 
 		$entry = current($relations);
 		$title = $entry->getParams()[1];
