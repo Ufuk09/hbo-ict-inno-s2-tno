@@ -17,7 +17,7 @@ class Utility extends BaseUtility {
 
 	protected $valueReturningFunctions = [
 		BaseUtility::GET_CURRENT_MODEL => [self::class, 'getCurrentModel'],
-        BaseUtility::GET_MODEL => [self::class, 'getModel'],
+		BaseUtility::GET_MODEL => [self::class, 'getModel'],
 		BaseUtility::GET_MODEL_META => [self::class, 'getModelMeta'],
 		BaseUtility::GET_MODELS => [self::class, 'getModels'],
 	];
@@ -25,13 +25,7 @@ class Utility extends BaseUtility {
 	function call(string $name, ...$parameters) {
 		$this->recordHistory($name, $parameters);
 
-		if ($parameters[0] === 'essif-lab_insert_hook') {
-			$parameters[1](['slug' => 'title']);
-		}
-
-		if ($parameters[0] === 'essif-lab_delete_hook') {
-			$parameters[1](['slug' => 'title']);
-		}
+		$this->handleSubPluginApi($name ,$parameters);
 
 		if (array_key_exists($name, $this->callbackTriggeringFunctions)) {
 			$callback = $this->callbackTriggeringFunctions[$name];
@@ -47,6 +41,18 @@ class Utility extends BaseUtility {
 		return null;
 	}
 
+	static function handleSubPluginApi($name, array $params) {
+		if ($name === 'add_action') {
+			if ($params[0] === 'essif-lab_insert_hook') {
+				$params[1](['slug' => 'title']);
+			}
+
+			if ($params[0] === 'essif-lab_delete_hook') {
+				$params[1](['slug' => 'title']);
+			}
+		}
+	}
+
 	static function addHook(string $hook, callable $callback, int $priority = 10, int $accepted_args = 1): void {
 		$params = range(0, $accepted_args);
 		$callback(...$params);
@@ -56,13 +62,13 @@ class Utility extends BaseUtility {
 		$callback();
 	}
 
-    static function getModel(int $id): Model {
-        return new Model([
-            Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => $id,
-            Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
-            Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',
-        ]);
-    }
+	static function getModel(int $id): Model {
+		return new Model([
+			Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => $id,
+			Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
+			Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',
+		]);
+	}
 
 	static function getCurrentModel(): Model {
 		return new Model([
