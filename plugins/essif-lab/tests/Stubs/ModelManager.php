@@ -3,12 +3,13 @@
 namespace TNO\EssifLab\Tests\Stubs;
 
 use TNO\EssifLab\Constants;
-use TNO\EssifLab\Integrations\Contracts\Integration;
 use TNO\EssifLab\ModelManagers\Contracts\BaseModelManager;
 use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Tests\Stubs\Model as ConcreteModel;
 
 class ModelManager extends BaseModelManager {
+	use WithHistory;
+
     const MODEL_MANAGER = 'ModelManager';
 
     private $isCalled = [];
@@ -26,10 +27,12 @@ class ModelManager extends BaseModelManager {
     private $relations = [];
 
 	function insert(Model $model): bool {
+		$this->recordHistory('insert', [$model]);
 		return true;
 	}
 
 	function delete(Model $model): bool {
+		$this->recordHistory('delete', [$model]);
 		return true;
 	}
 

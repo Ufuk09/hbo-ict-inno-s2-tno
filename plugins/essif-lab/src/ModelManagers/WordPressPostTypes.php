@@ -19,7 +19,7 @@ class WordPressPostTypes extends BaseModelManager {
 	}
 
 	function insert(Model $model): bool {
-		return $this->utility->call(BaseUtility::CREATE_MODEL, $model->getAttributes());
+		return $this->utility->call(BaseUtility::CREATE_MODEL, $model);
 	}
 
 	function update(Model $model): bool {

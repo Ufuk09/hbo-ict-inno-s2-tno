@@ -74,8 +74,8 @@ class WP extends BaseUtility {
 		register_post_type($postType, $args);
 	}
 
-	static function createModel(array $args): bool {
-		$result = wp_insert_post($args, true);
+	static function createModel(Model $model): bool {
+		$result = wp_insert_post(self::mapModelToPost($model), true);
 		if (! is_int($result)) {
 			throw $result;
 		}
@@ -83,8 +83,8 @@ class WP extends BaseUtility {
 		return $result;
 	}
 
-	static function updateModel($args): bool {
-		$result = wp_update_post($args, true);
+	static function updateModel(Model $model): bool {
+		$result = wp_update_post(self::mapModelToPost($model), true);
 		if (! is_int($result)) {
 			throw $result;
 		}
@@ -154,6 +154,28 @@ class WP extends BaseUtility {
 			Constants::TYPE_INSTANCE_TITLE_ATTR => $title,
 			Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => $description,
 		]));
+	}
+
+	private static function mapModelToPost(Model $model): array {
+		$modelAttrs = $model->getAttributes();
+
+		$postAttrs = [
+			'post_type' => $model->getTypeName(),
+		];
+		if (array_key_exists(Constants::TYPE_INSTANCE_IDENTIFIER_ATTR, $modelAttrs)) {
+			$postAttrs['ID'] = $modelAttrs[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
+		}
+		if (array_key_exists(Constants::TYPE_INSTANCE_SLUG_ATTR, $modelAttrs)) {
+			$postAttrs['post_name'] = $modelAttrs[Constants::TYPE_INSTANCE_SLUG_ATTR];
+		}
+		if (array_key_exists(Constants::TYPE_INSTANCE_TITLE_ATTR, $modelAttrs)) {
+			$postAttrs['post_title'] = $modelAttrs[Constants::TYPE_INSTANCE_TITLE_ATTR];
+		}
+		if (array_key_exists(Constants::TYPE_INSTANCE_DESCRIPTION_ATTR, $modelAttrs)) {
+			$postAttrs['post_content'] = $modelAttrs[Constants::TYPE_INSTANCE_DESCRIPTION_ATTR];
+		}
+
+		return $postAttrs;
 	}
 
 	private static function jsonStringToAssocArray(string $string): array {

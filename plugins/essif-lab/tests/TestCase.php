@@ -14,18 +14,20 @@ use TNO\EssifLab\Tests\Stubs\Utility;
 abstract class TestCase extends PHPUnitTestCase {
 	protected $application;
 
-	/**
-	 * @var Utility
-	 */
+	/** @var Utility */
 	protected $utility;
 
+	/** @var ModelManager */
 	protected $manager;
 
+	/** @var ModelRenderer */
+	protected $renderer;
+
+	/** @var Integration */
 	protected $integration;
 
+	/** @var Model */
 	protected $model;
-
-	protected $renderer;
 
 	protected function setUp(): void {
 		parent::setUp();

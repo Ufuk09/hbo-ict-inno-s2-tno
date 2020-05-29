@@ -7,7 +7,7 @@ use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Utilities\WP;
 
 class Utility extends BaseUtility {
-	private $history = [];
+	use WithHistory;
 
 	protected $callbackTriggeringFunctions = [
 		WP::ADD_ACTION => [self::class, 'addHook'],
@@ -23,8 +23,15 @@ class Utility extends BaseUtility {
 	];
 
 	function call(string $name, ...$parameters) {
-		$wasCalled = count($this->getHistoryByFuncName($name));
-		$this->history[] = new History($name, $parameters, $wasCalled + 1);
+		$this->recordHistory($name, $parameters);
+
+		if ($parameters[0] === 'essif-lab_insert_hook') {
+			$parameters[1](['slug' => 'title']);
+		}
+
+		if ($parameters[0] === 'essif-lab_delete_hook') {
+			$parameters[1](['slug' => 'title']);
+		}
 
 		if (array_key_exists($name, $this->callbackTriggeringFunctions)) {
 			$callback = $this->callbackTriggeringFunctions[$name];
@@ -38,16 +45,6 @@ class Utility extends BaseUtility {
 		}
 
 		return null;
-	}
-
-	/**
-	 * @param string $funcName
-	 * @return History[]
-	 */
-	function getHistoryByFuncName(string $funcName): array {
-		return array_slice(array_filter($this->history, function (History $history) use ($funcName) {
-			return $history->getFuncName() === $funcName;
-		}), 0);
 	}
 
 	static function addHook(string $hook, callable $callback, int $priority = 10, int $accepted_args = 1): void {

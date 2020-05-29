@@ -7,6 +7,8 @@ abstract class Constants {
 
 	const TYPE_INSTANCE_IDENTIFIER_ATTR = 'ID';
 
+	const TYPE_INSTANCE_SLUG_ATTR = 'slug';
+
 	const TYPE_INSTANCE_TITLE_ATTR = 'title';
 
 	const TYPE_INSTANCE_DESCRIPTION_ATTR = 'description';
