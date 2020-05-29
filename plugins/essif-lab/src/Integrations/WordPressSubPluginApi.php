@@ -14,9 +14,12 @@ class WordPressSubPluginApi extends BaseIntegration {
 
 	const TRIGGER_DELETE_PRE = self::TRIGGER_PRE.'delete_';
 
+	const TRIGGER_SELECT_PRE = self::TRIGGER_PRE.'select_';
+
 	function install(): void {
 		$this->addActionInsertHook();
 		$this->addActionDeleteHook();
+		$this->applyFilterSelectHooks();
 	}
 
 	private function addActionInsertHook() {
@@ -52,6 +55,12 @@ class WordPressSubPluginApi extends BaseIntegration {
 			}
 
 			return [];
+		});
+	}
+
+	private function applyFilterSelectHooks() {
+		$this->utility->call(WP::ADD_FILTER, self::TRIGGER_SELECT_PRE.'hook', function ($items) {
+			return array_merge(is_array($items) ? $items : [], $this->manager->select(new Hook()));
 		});
 	}
 }

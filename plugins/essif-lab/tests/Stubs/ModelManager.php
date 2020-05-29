@@ -41,6 +41,7 @@ class ModelManager extends BaseModelManager {
 	}
 
 	function select(Model $model, array $criteria = []): array {
+		$this->recordHistory('select', [$model]);
 		return [
 			new ConcreteModel([
 				Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 1,
