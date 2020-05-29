@@ -16,7 +16,7 @@ class Hook extends BaseModel {
 		Constants::TYPE_ARG_HIDE_FROM_NAV => true,
 	];
 
-	protected $attributes = [
+	protected $attributeNames = [
 		Constants::TYPE_INSTANCE_SLUG_ATTR,
 	];
 }
