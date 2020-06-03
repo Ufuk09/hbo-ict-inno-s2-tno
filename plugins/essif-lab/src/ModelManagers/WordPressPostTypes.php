@@ -41,11 +41,11 @@ class WordPressPostTypes extends BaseModelManager {
 	function delete(Model $model): bool {
 		$id = $this->getGivenOrCurrentModelId($model);
 
-		$result = $this->utility->call(BaseUtility::DELETE_MODEL, $id);
+        $resultRelations = $this->deleteAllRelations($model);
 
-		$this->deleteAllRelations($model);
+        $result = $this->utility->call(BaseUtility::DELETE_MODEL, $id);
 
-		return $result !== null || $result !== false;
+        return ($result !== null || $result !== false) && ($resultRelations !== null || $resultRelations !== false);
 	}
 
 	function insertRelation(Model $from, Model $to): bool {
@@ -83,22 +83,20 @@ class WordPressPostTypes extends BaseModelManager {
 	}
 
 	function deleteAllRelations(Model $from): bool {
-	    // TODO: catch delete calls for custom models
 		$result = true;
-		$id = $this->getGivenOrCurrentModelId($from);
-		$relationIds = $this->utility->call(BaseUtility::GET_MODEL_META, $id, $this->relationKey.$from->getTypeName());
-		BaseModelManager::forEachModel($from->getRelations(), function (Model $to) use (&$result, $from, $id, $relationIds) {
-			if ($result) {
-				$relationFromToKey = $this->relationKey.$to->getTypeName();
-				$relationToFromKey = $this->relationKey.$from->getTypeName();
-				$result = $this->utility->call(BaseUtility::DELETE_MODEL_META, $id, $relationFromToKey);
-				foreach ($relationIds as $relationId) {
-					if ($result) {
-						$result = $this->utility->call(BaseUtility::DELETE_MODEL_META, $relationId, $relationToFromKey, $id);
-					}
-				}
-			}
-		});
+		$fromId = $this->getGivenOrCurrentModelId($from);
+        BaseModelManager::forEachModel($from->getRelations(), function (Model $to) use (&$result, $from, $fromId) {
+            if (!empty($toIds = $this->utility->call(BaseUtility::GET_MODEL_META, $fromId, $this->relationKey.$to->getTypeName()))) {
+                $relationFromToKey = $this->relationKey.$to->getTypeName();
+                $relationToFromKey = $this->relationKey.$from->getTypeName();
+                $result = $this->utility->call(BaseUtility::DELETE_MODEL_META, $fromId, $relationFromToKey);
+                foreach ($toIds as $id) {
+                    if ($result) {
+                        $result = $this->utility->call(BaseUtility::DELETE_MODEL_META, $id, $relationToFromKey, $fromId);
+                    }
+                }
+            }
+        });
 
 		return $result;
 	}

@@ -79,6 +79,21 @@ class WordPressTest extends TestCase {
 		$this->assertCount(7, $fields);
 	}
 
+    /** @test */
+    function installs_all_model_types_their_delete_handlers() {
+        $this->subject->install();
+
+        $history = $this->utility->getHistoryByFuncName(WP::ADD_ACTION);
+        $this->assertNotEmpty($history);
+
+        $fields = array_filter($history, function ($entry) {
+            $hookName = $entry->getParams()[0];
+
+            return strpos($hookName, 'delete_post') !== false;
+        });
+        $this->assertCount(7, $fields);
+    }
+
 	/** @test */
 	function installs_all_model_types_their_save_handlers_and_removes_all_actions_before_updating() {
 		$_POST['namespace'][Constants::FIELD_TYPE_SIGNATURE] = 'hello';
@@ -89,6 +104,15 @@ class WordPressTest extends TestCase {
 	}
 
     /** @test */
+    function installs_all_model_types_their_delete_handlers_and_removes_all_actions_before_updating() {
+        $_POST['namespace'][Constants::FIELD_TYPE_SIGNATURE] = 'hello';
+        $this->subject->install();
+
+        $history = $this->utility->getHistoryByFuncName(WP::REMOVE_ALL_ACTIONS_AND_EXEC);
+        $this->assertNotEmpty($history);
+    }
+
+    /** @test */
     function installs_all_model_types_their_save_handlers_and_adds_a_relation() {
         $id = 5;
         $this->create_a_relation($id);
@@ -96,14 +120,21 @@ class WordPressTest extends TestCase {
         $managerWasCalled = $this->manager->isCalled(ModelManager::MODEL_MANAGER);
         $this->assertTrue($managerWasCalled);
 
-        $model1 = $this->manager->getModel1ItsCalledWith(ModelManager::MODEL_MANAGER);
-        $this->assertNotEmpty($model1);
+        $modelFrom = $this->manager->getModel1ItsCalledWith(ModelManager::MODEL_MANAGER);
+        $this->assertNotEmpty($modelFrom);
 
-        $model2 = $this->manager->getModel2ItsCalledWith(ModelManager::MODEL_MANAGER);
-        $this->assertNotEmpty($model2);
+        $modelTo = $this->manager->getModel2ItsCalledWith(ModelManager::MODEL_MANAGER);
+        $this->assertNotEmpty($modelTo);
 
-        $modelIds = [$model1->getAttributes()[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR], $model2->getAttributes()[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR]];
+        $modelIds = [$modelFrom->getAttributes()[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR], $modelTo->getAttributes()[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR]];
         $this->assertContains(5, $modelIds);
+
+        $relations = $this->manager->selectAllRelations($modelFrom, $modelTo);
+        $result = false;
+        foreach ($relations as $model){
+            if ($model == $modelTo) $result = true;
+        }
+        $this->assertTrue($result);
     }
 
     /** @test */

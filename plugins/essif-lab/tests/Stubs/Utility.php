@@ -90,8 +90,8 @@ class Utility extends BaseUtility {
                     return !in_array($value, self::$meta[$postId][$key]);
                 }
             } else {
-                unset(self::$meta[$postId][$key]);
-                return !self::checkPostIdAndKey($postId, $key) ? true : false;
+                self::$meta[$postId][$key] = array();
+                return empty($meta[$postId][$key]) ? true : false;
             }
         }
         return false;
@@ -125,5 +125,9 @@ class Utility extends BaseUtility {
     private static function checkPostIdAndKey(int $postId, string $key): bool
     {
         return isset(self::$meta) && isset(self::$meta[$postId]) && isset(self::$meta[$postId][$key]);
+    }
+
+    public function clearMeta(): void {
+	    self::$meta = array();
     }
 }

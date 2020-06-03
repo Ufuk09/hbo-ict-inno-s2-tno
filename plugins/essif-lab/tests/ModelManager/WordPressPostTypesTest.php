@@ -35,6 +35,7 @@ class WordPressPostTypesTest extends TestCase {
 
     /** @test */
     function inserts_model_and_its_relations(){
+        $this->utility->clearMeta();
         $models = $this->insertModelWith2Relations();
 
         $relations1 = $this->subject->selectAllRelations($models["mainModel"], $models["subModel1"]);
@@ -58,6 +59,7 @@ class WordPressPostTypesTest extends TestCase {
 
 	/** @test */
     function inserts_model_and_its_relations_and_then_deletes_it_and_its_relations(){
+        $this->utility->clearMeta();
         $models = $this->insertModelWith2Relations();
 
         $this->subject->delete($models["mainModel"]);

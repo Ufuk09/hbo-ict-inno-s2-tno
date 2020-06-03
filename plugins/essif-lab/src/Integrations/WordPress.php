@@ -40,6 +40,7 @@ class WordPress extends BaseIntegration {
 		BaseIntegration::forAllModels(function (Model $model) {
 			$this->registerModelType($model);
 			$this->registerModelSaveHandler($model);
+			$this->registerModelDeleteHandler($model);
 		});
 	}
 
@@ -64,6 +65,15 @@ class WordPress extends BaseIntegration {
 			$handler->install();
 		}, 10, 2);
 	}
+
+    private function registerModelDeleteHandler(Model $model): void {
+        $hook = 'before_delete_post_'.$model->getTypeName();
+        $this->utility->call(WP::ADD_ACTION, $hook, function () use ($hook, $model){
+            $this->utility->call(WP::REMOVE_ALL_ACTIONS_AND_EXEC, $hook, function () use ($model) {
+                $this->manager->delete($model);
+            });
+        }, -1);
+    }
 
 	private function registerModelComponents(Model $model): void {
 		$hook = 'add_meta_boxes_'.$model->getTypeName();

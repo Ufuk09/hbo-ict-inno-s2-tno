@@ -93,7 +93,7 @@ class WP extends BaseUtility {
 	}
 
 	static function deleteModel(int $postId): bool {
-		return wp_delete_post($postId, true);
+		return !empty(wp_delete_post($postId, true));
 	}
 
 	static function getModel(int $id): ?Model {
