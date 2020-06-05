@@ -9,7 +9,7 @@ autoinstall: start
 
 clean: down
 	@echo "💥 Removing related folders/files..."
-	@rm -rf  mysql/* wordpress/*
+	@rm -rf  mysql wordpress
 
 reset: clean
 
