@@ -93,7 +93,7 @@ class WP extends BaseUtility {
 	}
 
 	static function deleteModel(int $postId): bool {
-		return wp_delete_post($postId, true);
+		return !empty(wp_delete_post($postId, true));
 	}
 
 	static function getModel(int $id): ?Model {
@@ -171,7 +171,7 @@ class WP extends BaseUtility {
 		return add_post_meta($postId, $key, $value, false);
 	}
 
-	static function deleteModelMeta(int $postId, string $key, $value): bool {
+	static function deleteModelMeta(int $postId, string $key, $value = ''): bool {
 		return delete_post_meta($postId, $key, $value);
 	}
 
