@@ -5,7 +5,6 @@ namespace TNO\EssifLab\Utilities;
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
-use TNO\EssifLab\Utilities\Exceptions\InvalidModelType;
 
 class WP extends BaseUtility {
 	const ADD_ACTION = 'add_action';
@@ -94,20 +93,20 @@ class WP extends BaseUtility {
 	}
 
 	static function deleteModel(int $postId): bool {
-		return wp_delete_post($postId, true);
+		return !empty(wp_delete_post($postId, true));
 	}
 
-    static function getModel(int $id): Model {
-        return self::modelFactory(get_post($id)->to_array());
-    }
+	static function getModel(int $id): ?Model {
+		return self::modelFactory(get_post($id)->to_array());
+	}
 
 	static function getModels(array $args = []): array {
-        return array_map(function ($post) {
-            return self::modelFactory($post->to_array());
-        }, get_posts(array_merge([
-            'numberposts' => -1,
-            Constants::MODEL_TYPE_INDICATOR => 'any',
-        ], $args)));
+		return array_map(function ($post) {
+			return self::modelFactory($post->to_array());
+		}, get_posts(array_merge([
+			'numberposts' => -1,
+			Constants::MODEL_TYPE_INDICATOR => 'any',
+		], $args)));
 	}
 
 	static function getCurrentModel(): ?Model {
@@ -128,14 +127,14 @@ class WP extends BaseUtility {
 		return self::modelFactory($post->to_array());
 	}
 
-	private static function modelFactory(array $args): Model {
+	private static function modelFactory(array $args): ?Model {
 		$type = array_key_exists(Constants::MODEL_TYPE_INDICATOR, $args) ? $args[Constants::MODEL_TYPE_INDICATOR] : '';
 
 		$className = implode('', array_map('ucfirst', explode(' ', str_replace('-', ' ', $type))));
 		$FQN = Constants::TYPE_NAMESPACE.'\\'.$className;
 
 		if (empty($type) || ! class_exists($FQN) || ! in_array(Model::class, class_implements($FQN))) {
-			throw new InvalidModelType($FQN);
+			return null;
 		}
 
 		$attrs = self::extractAttributesFromArgs($args);
@@ -172,7 +171,7 @@ class WP extends BaseUtility {
 		return add_post_meta($postId, $key, $value, false);
 	}
 
-	static function deleteModelMeta(int $postId, string $key, $value): bool {
+	static function deleteModelMeta(int $postId, string $key, $value = ''): bool {
 		return delete_post_meta($postId, $key, $value);
 	}
 
