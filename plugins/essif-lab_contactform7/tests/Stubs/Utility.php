@@ -4,11 +4,22 @@
 namespace TNO\ContactForm7\Tests\Stubs;
 
 use TNO\ContactForm7\Utilities\Contracts\BaseUtility;
-use TNO\ContactForm7\Utilities\Helpers\CF7Helper;
+use TNO\ContactForm7\Utilities\Helpers\TestHelper;
 
 class Utility extends BaseUtility
 {
     private $history = [];
+
+    /**
+     * @param string $funcName
+     * @return History[]
+     */
+    function getHistoryByFuncName(string $funcName): array
+    {
+        return array_slice(array_filter($this->history, function (History $history) use ($funcName) {
+            return $history->getFuncName() === $funcName;
+        }), 0);
+    }
 
     function insertHook(string $slug = self::SLUG, string $title = self::TITLE)
     {
@@ -59,15 +70,16 @@ class Utility extends BaseUtility
 
     function selectTarget(array $items = [], string $hookSlug = self::SLUG)
     {
-        $returnMock = [
-
-        ];
-        $this->select("target", $items, $hookSlug, $returnMock);
+        $testUtil = new TestHelper();
+        $target = $testUtil->getTestTarget();
+        $this->select("target", $items, $hookSlug, $target);
     }
 
     function selectInput(array $items = [], string $hookSlug = self::SLUG)
     {
-        $this->select("input", $items, $hookSlug);
+        $testUtil = new TestHelper();
+        $input = $testUtil->getTestInput();
+        $this->select("input", $items, $hookSlug, $input);
     }
 
     private function select($suffix, ...$params)
@@ -82,20 +94,21 @@ class Utility extends BaseUtility
         array_push($this->history, $histObj);
     }
 
-    function loadCustomJs()
+    function loadCustomScripts()
     {
-        $histObj = new History("loadCustomJs");
+        $histObj = new History("loadCustomScripts");
         array_push($this->history, $histObj);
     }
 
-    /**
-     * @param string $funcName
-     * @return History[]
-     */
-    function getHistoryByFuncName(string $funcName): array
+    function addActivateHook()
     {
-        return array_slice(array_filter($this->history, function (History $history) use ($funcName) {
-            return $history->getFuncName() === $funcName;
-        }), 0);
+        $histObj = new History("addActivateHook");
+        array_push($this->history, $histObj);
+    }
+
+    function addDeactivateHook()
+    {
+        $histObj = new History("addDeactivateHook");
+        array_push($this->history, $histObj);
     }
 }

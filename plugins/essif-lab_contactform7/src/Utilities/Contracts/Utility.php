@@ -19,6 +19,8 @@ interface Utility {
     function selectInput(array $items = [], string $hookSlug = self::SLUG);
 
     function addEssifLabButton();
-    function loadCustomJs();
-    // Etc.
+    function loadCustomScripts();
+
+    function addActivateHook();
+    function addDeactivateHook();
 }

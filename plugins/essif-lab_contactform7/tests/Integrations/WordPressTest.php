@@ -4,7 +4,6 @@ namespace TNO\ContactForm7\Tests\Integrations;
 
 use TNO\ContactForm7\Integrations\WordPress;
 use TNO\ContactForm7\Tests\TestCase;
-use WP_Post;
 
 class WordPressTest extends TestCase {
     protected function setUp(): void
@@ -65,10 +64,16 @@ class WordPressTest extends TestCase {
      * @test
      */
     function should_select_target_with_right_parameters() {
-        $hook = $this->utility->getHistoryByFuncName("selectTarget");
-        $entry = current($hook);
-        $params = $entry->getParams()[0];
-        $expected = ['contact-form-7' => 'Contact Form 7'];
+        $target = $this->utility->getHistoryByFuncName("selectTarget");
+        $entry = current($target);
+        $params = $entry->getParams()[2];
+        $expected = [
+            12 => "Contactform 1",
+            13 => "Contactform 2",
+            14 => "Contactform 3",
+            15 => "Contactform 4",
+            16 => "Contactform 5"
+        ];
         $this->assertEquals($expected, $params);
     }
 
@@ -76,7 +81,16 @@ class WordPressTest extends TestCase {
      * @test
      */
     function should_select_input_with_right_parameters() {
-
+        $input = $this->utility->getHistoryByFuncName("selectInput");
+        $entry = current($input);
+        $params = $entry->getParams()[2];
+        $expected = [
+            12 => "Contactform 1",
+            ["my-email" => "Email",
+                "my-name" => "Name",
+                "my-message" => "Message"]
+        ];
+        $this->assertEquals($expected, $params);
     }
 
     /**
@@ -90,9 +104,26 @@ class WordPressTest extends TestCase {
     /**
      * @test
      */
-    function should_add_js_when_activated() {
-        $button = $this->utility->getHistoryByFuncName("loadCustomJs");
+    function should_load_scripts_when_activated() {
+        $button = $this->utility->getHistoryByFuncName("loadCustomScripts");
         self::assertCount(1, $button);
     }
+
+    /**
+     * @test
+     */
+    function should_add_activate_hook_when_activated() {
+        $button = $this->utility->getHistoryByFuncName("addActivateHook");
+        self::assertCount(1, $button);
+    }
+
+    /**
+     * @test
+     */
+    function should_add_deactivate_hook_when_activated() {
+        $button = $this->utility->getHistoryByFuncName("addDeactivateHook");
+        self::assertCount(1, $button);
+    }
+
 
 }

@@ -3,8 +3,8 @@
 namespace TNO\ContactForm7\Utilities;
 
 use TNO\ContactForm7\Utilities\Contracts\BaseUtility;
-use TNO\ContactForm7\Utilities\Helpers\CF7Helper;
 use TNO\ContactForm7\Views\Button;
+use TNO\ContactForm7\Utilities\Helpers\CF7Helper;
 
 class WP extends BaseUtility
 {
@@ -57,15 +57,11 @@ class WP extends BaseUtility
 
     function selectTarget(array $items = [], string $hookSlug = self::SLUG)
     {
-        $cf7helper = new CF7Helper();
-        $items = $cf7helper->getAllTargets() ?: [];
         $this->select("target", $items, $hookSlug);
     }
 
     function selectInput(array $items = [], string $hookSlug = self::SLUG)
     {
-        $cf7helper = new CF7Helper();
-        $items = $cf7helper->getAllInputs() ?: [];
         $this->select("input", $items, $hookSlug);
     }
 
@@ -83,4 +79,19 @@ class WP extends BaseUtility
         wp_enqueue_script( "EssifLab_ContactForm7-CustomJs", plugin_dir_url( __FILE__ ) . '../js/script.js', array( 'jquery' ), "", false );
     }
 
+    function loadCustomScripts() {
+        add_action( 'wp_enqueue_scripts', array( $this , 'loadCustomJs' ) );
+    }
+
+    function addActivateHook()
+    {
+        $cf7helper = new CF7Helper();
+        register_deactivation_hook( __FILE__, array( $cf7helper, 'addAllOnActivate' ) );
+    }
+
+    function addDeactivateHook()
+    {
+        $cf7helper = new CF7Helper();
+        register_deactivation_hook( __FILE__, array( $cf7helper, 'deleteAllOnDeactivate' ) );
+    }
 }
