@@ -10,6 +10,11 @@
   "require-dev": {
     "phpunit/phpunit": "^8"
   },
+  "autoload-dev": {
+    "psr-4": {
+      "TNO\\ContactForm7\\Tests\\": "tests/"
+    }
+  },
   "autoload": {
     "psr-4": {
       "TNO\\ContactForm7\\": "src/"

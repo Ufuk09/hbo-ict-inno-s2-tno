@@ -18,25 +18,55 @@ if (file_exists($classAutoloader)) {
     require_once($classAutoloader);
 }
 
-use TNO\ContactForm7\Application\Activator;
-use TNO\ContactForm7\Application\Deactivator;
-use TNO\ContactForm7\Application\Plugin;
+use TNO\ContactForm7\Applications\Contracts\Application;
+use TNO\ContactForm7\Applications\Plugin;
+use TNO\ContactForm7\Integrations\Contracts\Integration;
+use TNO\ContactForm7\Utilities\Contracts\Utility;
+use TNO\ContactForm7\Utilities\WP;
+use TNO\ContactForm7\Integrations\WordPress;
 
-function activate_essif_lab_contactform7() {
-    $activator = new Activator();
-    $activator->activate();
+$wpPluginApi = ABSPATH.'wp-admin/includes/plugin.php';
+if (! function_exists('get_plugin_data') && file_exists($wpPluginApi)) {
+    require_once($wpPluginApi);
 }
 
-function deactivate_essif_lab_contactform7() {
-    $deactivator = new Deactivator();
-    $deactivator->deactivate();
-}
+$getApplication = function (): Application {
+    $pluginData = get_plugin_data(__FILE__, false, false);
 
-register_activation_hook( __FILE__, 'activate_essif_lab_contactform7' );
-register_deactivation_hook( __FILE__, 'deactivate_essif_lab_contactform7' );
+    $name = function () use ($pluginData): string {
+        return array_key_exists('Name', $pluginData) ? $pluginData['Name'] : 'App';
+    };
 
-function run_essif_lab_contactform7() {
-	$plugin = new Plugin();
-	$plugin->run();
-}
-run_essif_lab_contactform7();
+    $namespace = function () use ($pluginData): string {
+        return array_key_exists('TextDomain', $pluginData) ? $pluginData['TextDomain'] : 'MyApp';
+    };
+
+    $appDir = function (): string {
+        return plugin_dir_path(__FILE__);
+    };
+
+    return new Plugin($name(), $namespace(), $appDir());
+};
+
+$getUtility = function (): Utility {
+    return new WP();
+};
+
+$getIntegration = function () use($getApplication, $getUtility) : Integration {
+    return new WordPress($getApplication(), $getUtility());
+};
+
+$getIntegration()->install();
+
+//use TNO\ContactForm7\Application\Plugin;
+//use TNO\ContactForm7\Implementation\Logic;
+//$logic = new Logic;
+//
+//register_activation_hook( __FILE__, array( $logic, 'activate_essif_lab_contactform7' ) );
+//register_deactivation_hook( __FILE__, array( $logic, 'deactivate_essif_lab_contactform7' ) );
+//
+//function run_essif_lab_contactform7() {
+//	$plugin = new Plugin();
+//	$plugin->run();
+//}
+//run_essif_lab_contactform7();
