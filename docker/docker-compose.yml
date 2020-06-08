@@ -1,7 +1,7 @@
 version: '3'
 services:
   wordpress:
-    image: "wordpress-tno:latest"
+    image: "weis999/aws_wordpress_tno:latest"
     container_name: "${COMPOSE_PROJECT_NAME}"
     volumes:
       - ./toolbox/php.conf.ini:/usr/local/etc/php/conf.d/php.ini
