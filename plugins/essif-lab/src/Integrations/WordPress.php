@@ -24,6 +24,7 @@ class WordPress extends BaseIntegration {
 		$this->configureAllMiscellaneous();
 		$this->configureAllModelsAvailable();
 		$this->configureModelCurrentlyBeingViewed();
+		$this->configureSubPluginApi();
 	}
 
 	private function configureAllMiscellaneous(): void {
@@ -49,6 +50,11 @@ class WordPress extends BaseIntegration {
 		if (! empty($model)) {
 			$this->registerModelComponents($model);
 		}
+	}
+
+	private function configureSubPluginApi(): void {
+		$api = new WordPressSubPluginApi($this->application, $this->manager, $this->renderer, $this->utility);
+		$api->install();
 	}
 
 	private function registerModelType(Model $model): void {

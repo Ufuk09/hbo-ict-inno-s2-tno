@@ -21,6 +21,14 @@ class WP extends BaseUtility {
 
 	const ADD_META_BOX = 'add_meta_box';
 
+	const POST_ID = Constants::TYPE_INSTANCE_IDENTIFIER_ATTR;
+
+	const POST_NAME = 'post_name';
+
+	const POST_TITLE = 'post_title';
+
+	const POST_CONTENT = 'post_content';
+
 	protected $functions = [
 		self::ADD_ACTION => [self::class, 'addAction'],
 		self::ADD_FILTER => [self::class, 'addFilter'],
@@ -74,8 +82,8 @@ class WP extends BaseUtility {
 		register_post_type($postType, $args);
 	}
 
-	static function createModel(array $args): bool {
-		$result = wp_insert_post($args, true);
+	static function createModel(Model $model): bool {
+		$result = wp_insert_post(self::mapModelToPost($model), true);
 		if (! is_int($result)) {
 			throw $result;
 		}
@@ -83,8 +91,8 @@ class WP extends BaseUtility {
 		return $result;
 	}
 
-	static function updateModel($args): bool {
-		$result = wp_update_post($args, true);
+	static function updateModel(Model $model): bool {
+		$result = wp_update_post(self::mapModelToPost($model), true);
 		if (! is_int($result)) {
 			throw $result;
 		}
@@ -127,8 +135,8 @@ class WP extends BaseUtility {
 		return self::modelFactory($post->to_array());
 	}
 
-	private static function modelFactory(array $args): ?Model {
-		$type = array_key_exists(Constants::MODEL_TYPE_INDICATOR, $args) ? $args[Constants::MODEL_TYPE_INDICATOR] : '';
+	private static function modelFactory(array $postAttrs): ?Model {
+		$type = array_key_exists(Constants::MODEL_TYPE_INDICATOR, $postAttrs) ? $postAttrs[Constants::MODEL_TYPE_INDICATOR] : '';
 
 		$className = implode('', array_map('ucfirst', explode(' ', str_replace('-', ' ', $type))));
 		$FQN = Constants::TYPE_NAMESPACE.'\\'.$className;
@@ -137,34 +145,61 @@ class WP extends BaseUtility {
 			return null;
 		}
 
-		$attrs = self::extractAttributesFromArgs($args);
+		$modelAttrs = self::mapPostAttrsToModelAttrs($postAttrs);
 
-		return new $FQN($attrs);
+		return new $FQN($modelAttrs);
 	}
 
-	private static function extractAttributesFromArgs(array $args): array {
-		$id = array_key_exists(Constants::TYPE_INSTANCE_IDENTIFIER_ATTR, $args) ? $args[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR] : 0;
-		$title = array_key_exists('post_title', $args) ? $args['post_title'] : '';
-		$content = array_key_exists('post_content', $args) ? $args['post_content'] : '';
-		$contentToJson = self::jsonStringToAssocArray($content);
-		$description = empty($contentToJson) ? $content : '';
+	private static function mapPostAttrsToModelAttrs(array $attrs): array {
+		$content = array_key_exists(self::POST_CONTENT, $attrs) ? $attrs[self::POST_CONTENT] : '';
+		$modelAttrs = self::mapPostContentToModelAttributes($content);
 
-		return array_filter(array_merge($contentToJson, [
-			Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => $id,
-			Constants::TYPE_INSTANCE_TITLE_ATTR => $title,
-			Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => $description,
-		]));
+		if (array_key_exists(self::POST_ID, $attrs)) {
+			$modelAttrs[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR] = $attrs[self::POST_ID];
+		}
+		if (array_key_exists(self::POST_NAME, $attrs)) {
+			$modelAttrs[Constants::TYPE_INSTANCE_SLUG_ATTR] = $attrs[self::POST_NAME];
+		}
+		if (array_key_exists(self::POST_TITLE, $attrs)) {
+			$modelAttrs[Constants::TYPE_INSTANCE_TITLE_ATTR] = $attrs[self::POST_TITLE];
+		}
+
+		return $modelAttrs;
 	}
 
-	private static function jsonStringToAssocArray(string $string): array {
-		$json = json_decode($string);
+	private static function mapPostContentToModelAttributes(string $content): array {
+		$json = json_decode($content);
 		$isValidJson = json_last_error() === JSON_ERROR_NONE;
 		$isAssocArray = is_array($json) && array_keys($json) !== range(0, count($json) - 1);
 		if ($isValidJson && $isAssocArray) {
 			return $json;
 		}
 
-		return [];
+		return !empty($content) ? [
+			Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => $content,
+		] : [];
+	}
+
+	private static function mapModelToPost(Model $model): array {
+		$modelAttrs = $model->getAttributes();
+
+		$postAttrs = [
+			'post_type' => $model->getTypeName(),
+		];
+		if (array_key_exists(Constants::TYPE_INSTANCE_IDENTIFIER_ATTR, $modelAttrs)) {
+			$postAttrs[self::POST_ID] = $modelAttrs[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
+		}
+		if (array_key_exists(Constants::TYPE_INSTANCE_SLUG_ATTR, $modelAttrs)) {
+			$postAttrs[self::POST_NAME] = $modelAttrs[Constants::TYPE_INSTANCE_SLUG_ATTR];
+		}
+		if (array_key_exists(Constants::TYPE_INSTANCE_TITLE_ATTR, $modelAttrs)) {
+			$postAttrs[self::POST_TITLE] = $modelAttrs[Constants::TYPE_INSTANCE_TITLE_ATTR];
+		}
+		if (array_key_exists(Constants::TYPE_INSTANCE_DESCRIPTION_ATTR, $modelAttrs)) {
+			$postAttrs[self::POST_CONTENT] = $modelAttrs[Constants::TYPE_INSTANCE_DESCRIPTION_ATTR];
+		}
+
+		return $postAttrs;
 	}
 
 	static function createModelMeta(int $postId, string $key, $value): bool {
