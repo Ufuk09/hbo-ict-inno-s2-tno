@@ -16,6 +16,10 @@ class WordPressSubPluginApi extends BaseIntegration {
 
 	const TRIGGER_SELECT_PRE = self::TRIGGER_PRE.'select_';
 
+	const TRIGGER_NAME_HOOK = 'hook';
+
+	const TRIGGER_NAME_TARGET = 'target';
+
 	function install(): void {
 		$this->addActionInsertHook();
 		$this->addActionDeleteHook();
@@ -23,24 +27,24 @@ class WordPressSubPluginApi extends BaseIntegration {
 	}
 
 	private function addActionInsertHook() {
-		$this->utility->call(WP::ADD_ACTION, self::TRIGGER_INSERT_PRE.'hook', function ($hooks) {
+		$triggerName = self::TRIGGER_INSERT_PRE.self::TRIGGER_NAME_HOOK;
+		$this->utility->call(WP::ADD_ACTION, $triggerName, function ($hooks) {
 			if (is_array($hooks)) {
-				return array_filter(array_map(function ($slug) use ($hooks) {
+				foreach ($hooks as $slug => $title) {
 					$instance = new Hook([
 						Constants::TYPE_INSTANCE_TITLE_ATTR => $hooks[$slug],
 						Constants::TYPE_INSTANCE_SLUG_ATTR => $slug,
 					]);
 
-					return $this->manager->insert($instance);
-				}, array_keys($hooks)));
+					$this->manager->insert($instance);
+				}
 			}
-
-			return [];
 		});
 	}
 
 	private function addActionDeleteHook() {
-		$this->utility->call(WP::ADD_ACTION, self::TRIGGER_DELETE_PRE.'hook', function ($hooks) {
+		$triggerName = self::TRIGGER_DELETE_PRE.self::TRIGGER_NAME_HOOK;
+		$this->utility->call(WP::ADD_ACTION, $triggerName, function ($hooks) {
 			if (is_array($hooks)) {
 				return array_filter(array_map(function ($slug) use ($hooks) {
 					$instance = new Hook([
@@ -59,7 +63,8 @@ class WordPressSubPluginApi extends BaseIntegration {
 	}
 
 	private function applyFilterSelectHooks() {
-		$this->utility->call(WP::ADD_FILTER, self::TRIGGER_SELECT_PRE.'hook', function ($items) {
+		$triggerName = self::TRIGGER_SELECT_PRE.self::TRIGGER_NAME_HOOK;
+		$this->utility->call(WP::ADD_FILTER, $triggerName, function ($items) {
 			return array_merge(is_array($items) ? $items : [], $this->manager->select(new Hook()));
 		});
 	}

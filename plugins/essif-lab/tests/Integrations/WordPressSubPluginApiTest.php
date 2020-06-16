@@ -19,8 +19,9 @@ class WordPressSubPluginApiTest extends TestCase {
 	/** @test */
 	function does_add_action_to_insert_hook() {
 		$history = $this->utility->getHistoryByFuncName(WP::ADD_ACTION);
-		$insert_hook = array_filter($history, function ($h) {
-			return $h->getParams()[0] === WordPressSubPluginApi::TRIGGER_INSERT_PRE.'hook';
+		$triggerName = WordPressSubPluginApi::TRIGGER_INSERT_PRE.WordPressSubPluginApi::TRIGGER_NAME_HOOK;
+		$insert_hook = array_filter($history, function ($h) use ($triggerName){
+			return $h->getParams()[0] === $triggerName;
 		});
 
 		$this->assertCount(1, $insert_hook);
@@ -40,8 +41,9 @@ class WordPressSubPluginApiTest extends TestCase {
 	/** @test */
 	function does_add_action_to_delete_hook() {
 		$history = $this->utility->getHistoryByFuncName(WP::ADD_ACTION);
-		$insert_hook = array_filter($history, function ($h) {
-			return $h->getParams()[0] === WordPressSubPluginApi::TRIGGER_DELETE_PRE.'hook';
+		$triggerName = WordPressSubPluginApi::TRIGGER_DELETE_PRE.WordPressSubPluginApi::TRIGGER_NAME_HOOK;
+		$insert_hook = array_filter($history, function ($h) use ($triggerName) {
+			return $h->getParams()[0] === $triggerName;
 		});
 
 		$this->assertCount(1, $insert_hook);
@@ -58,8 +60,9 @@ class WordPressSubPluginApiTest extends TestCase {
 	/** @test */
 	function does_add_filter_to_select_hooks() {
 		$history = $this->utility->getHistoryByFuncName(WP::ADD_FILTER);
-		$insert_hook = array_filter($history, function ($h) {
-			return $h->getParams()[0] === WordPressSubPluginApi::TRIGGER_SELECT_PRE.'hook';
+		$triggerName = WordPressSubPluginApi::TRIGGER_SELECT_PRE.WordPressSubPluginApi::TRIGGER_NAME_HOOK;
+		$insert_hook = array_filter($history, function ($h) use ($triggerName) {
+			return $h->getParams()[0] === $triggerName;
 		});
 
 		$this->assertCount(1, $insert_hook);
