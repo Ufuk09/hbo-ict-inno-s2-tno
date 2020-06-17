@@ -53,7 +53,8 @@ class WordPressPostTypes extends BaseModelManager {
     }
 
     function getImmutable(Model $model) : bool {
-        return $this->utility->call(BaseUtility::GET_MODEL_META, $this->getGivenOrCurrentModelId($model), "essif-lab_immutable")[0];
+	    $immutable = $this->utility->call(BaseUtility::GET_MODEL_META, $this->getGivenOrCurrentModelId($model), "essif-lab_immutable")[0];
+        return isset($immutable) ? $immutable : false;
     }
 
     function insertRelation(Model $from, Model $to): bool {
