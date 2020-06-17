@@ -27,6 +27,12 @@ class Utility extends BaseUtility
         array_push($this->history, $histObj);
     }
 
+    public function getTargetsFromForms(array $cf7Forms, string $post_title, int $id)
+    {
+        $histObj = new History("getTargetsFromForms");
+        array_push($this->history, $histObj);
+    }
+
     function insertHook(string $slug = self::SLUG, string $title = self::TITLE)
     {
         $this->insert("hook", [$slug => $title]);

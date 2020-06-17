@@ -23,7 +23,7 @@ class CF7Helper
     {
         $wp = new WP();
         $cf7Forms = $wp->getAllForms();
-        $targets = wp_list_pluck($cf7Forms, 'post_title', 'ID');
+        $targets = $wp->getTargetsFromForms($cf7Forms, 'post_title', 'ID');
         return $targets;
     }
 

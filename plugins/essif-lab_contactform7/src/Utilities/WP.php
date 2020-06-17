@@ -17,6 +17,12 @@ class WP extends BaseUtility
         return $cf7Forms;
     }
 
+    function getTargetsFromForms(array $cf7Forms, string $post_title, int $id)
+    {
+        $targets = wp_list_pluck($cf7Forms, 'post_title', 'ID');
+        return $targets;
+    }
+
     function insertHook(string $slug = self::SLUG, string $title = self::TITLE)
     {
         $this->insert("hook", [$slug => $title]);
