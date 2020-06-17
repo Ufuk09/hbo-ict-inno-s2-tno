@@ -1,6 +1,6 @@
 (function( $ ) {
 	$( window ).load(function() {
-		$(".wpcf7 #essif-lab").click(function (e) {
+		$(".wpcf7 .essif-lab").click(function (e) {
 			e.preventDefault();
 			sendMockCall();
 		});
