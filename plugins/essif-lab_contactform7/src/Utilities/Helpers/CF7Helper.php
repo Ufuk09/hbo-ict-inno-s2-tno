@@ -9,13 +9,18 @@ class CF7Helper
     private function extractInputsFromForm($post)
     {
         $uniqueFields = [];
+        $uniqueKeys = [];
         if ($post->post_content != null) {
             $post_content = $post->post_content;
-            $post_content = strstr($post_content, 'TNO', true);
-            $re = '/\[(?:\w+\*?\s+)?([^][]+)]/';
+            $post_content = (string)strstr($post_content, 'TNO', true);
+//            var_dump($post_content);
+            //$post_content = "Je naam (verplicht) [text* your-test] Je e-mailadres (verplicht) [email* your-tester] Onderwerp [text your-testerer] Je bericht [textarea your-testererer] [submit \"Verzenden\"] 1 Postcode [text* postalCode] Adres [email* streetAddress] Onderwerp [text your-subject] Je bericht [textarea your-message] [submit \"Verzenden\"] [essif_lab] 1";
+            $re = '/([^][\s]+(?:\h+[^][\s]+)*)?\h+\[(?:\w+\*?\h+)?([^][]+)]/';
             preg_match_all($re, $post_content, $fields);
-            $uniqueFields = array_unique($fields[1]);
-            print_r($uniqueFields);
+            $uniqueFields = array_unique($fields[2]);
+            $uniqueKeys = array_unique($fields[1]);
+            var_dump($uniqueKeys);
+
         }
         return $uniqueFields;
     }
@@ -41,50 +46,55 @@ class CF7Helper
 
     function addAllOnActivate()
     {
-            $hook = [
-                "contact-form-7" => "Contact Form 7"
-            ];
+        $hook = [
+            "contact-form-7" => "Contact Form 7"
+        ];
 
-            $wp = new WP();
+        $wp = new WP();
 
-            /**
-             *  Insert the hook
-             */
-            $usedHook = $wp->selectHook();
-            if (in_array($hook, $usedHook)) {
-                do_action("essif-lab_insert_hook", $hook);
+        /**
+         *  Insert the hook
+         */
+        $usedHook = $wp->selectHook();
+        if (!in_array($hook, $usedHook)) {
+            $wp->insertHook();
+        }
+
+        /**
+         *  Insert the targets
+         */
+        $targets = $wp->selectTarget();
+        foreach ($this->getAllTargets() as $key => $target) {
+            if (!in_array($target, $targets)) {
+                $wp->insertTarget($key, $target);
             }
+        }
 
-            /**
-             *  Insert the targets
-             */
-            $targets = apply_filters("essif-lab_select_target", $hook);
-            foreach ($this->getAllTargets() as $target) {
-                if (!in_array($target, $targets)) {
-                    do_action("essif-lab_insert_target", $target, $hook);
-                }
-            }
-
-            /**
-             *  Insert the inputs
-             */
-            foreach ($this->getAllInputs() as $input) {
-                $target = $input[0];
-                $input = $input[1];
-                $inputs = apply_filters("essif-lab_select_input", $target);
-                foreach ($input as $inp) {
-                    if (!in_array($inp, $inputs)) {
-                        do_action("essif-lab_insert_input", $inp, $target);
-                    }
+        /**
+         *  Insert the inputs
+         */
+        foreach ($this->getAllInputs() as $input) {
+            $target = $input[0];
+            $input = $input[1];
+            $inputs = $wp->selectInput([$target[0] => $target[1]]);
+            //apply_filters("essif-lab_select_input", $target);
+            foreach ($input as $inp) {
+                if (!in_array($inp, $inputs)) {
+                    //$wp->insertInput($slug, $title, $target[0]);
+                    //$wp->insertInput($inp[0], $inp[1], $target[0]);
+                    //do_action("essif-lab_insert_input", $inp, $target);
                 }
             }
         }
+    }
 
     function deleteAllOnDeactivate()
     {
         $hook = [
             "contact-form-7" => "Contact Form 7"
         ];
+
+        $wp = new WP();
 
         /**
          *  Delete the inputs
@@ -103,20 +113,21 @@ class CF7Helper
         /**
          *  Delete the targets
          */
-        $targets = apply_filters("essif-lab_select_target", $hook);
+        $targets = $wp->selectTarget();
         if (!empty($targets)) {
-            foreach ($targets as $target) {
-                apply_filters("essif-lab_delete_target", $target, $hook);
+            foreach ($this->getAllTargets() as $key => $target) {
+                if (in_array($target, $targets)) {
+                    $wp->deleteTarget($key, $target);
+                }
             }
         }
 
         /**
          *  Delete the hook
          */
-        $hook = "['contact-form-7' => 'Contact Form 7']";
-        $usedHook = apply_filters("essif-lab_select_hook", []);
+        $usedHook = $wp->selectHook();
         if (in_array($hook, $usedHook)) {
-            do_action("essif-lab_delete_hook", $hook);
+            $wp->deleteHook();
         }
 
     }

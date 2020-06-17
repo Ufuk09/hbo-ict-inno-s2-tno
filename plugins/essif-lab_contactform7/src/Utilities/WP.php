@@ -17,7 +17,7 @@ class WP extends BaseUtility
         return $cf7Forms;
     }
 
-    function getTargetsFromForms(array $cf7Forms, string $post_title, int $id)
+    function getTargetsFromForms(array $cf7Forms, string $post_title, string $id)
     {
         $targets = wp_list_pluck($cf7Forms, 'post_title', 'ID');
         return $targets;
@@ -65,22 +65,22 @@ class WP extends BaseUtility
 
     function selectHook(string $slug = self::SLUG, string $title = self::TITLE)
     {
-        $this->select("hook", [$slug => $title]);
+        return $this->select("hook", [$slug => $title]);
     }
 
     function selectTarget(array $items = [], string $hookSlug = self::SLUG)
     {
-        $this->select("target", $items, $hookSlug);
+        return $this->select("target", $items, $hookSlug);
     }
 
     function selectInput(array $items = [], string $hookSlug = self::SLUG)
     {
-        $this->select("input", $items, $hookSlug);
+        return $this->select("input", $items, $hookSlug);
     }
 
     private function select($suffix, ...$params)
     {
-        do_action(self::ACTION_PREFIX . "select_" . $suffix, ... $params);
+        apply_filters(self::ACTION_PREFIX . "select_" . $suffix, ... $params);
     }
 
     function addEssifLabButton () {

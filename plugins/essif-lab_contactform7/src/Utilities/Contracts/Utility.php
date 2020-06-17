@@ -7,7 +7,7 @@ interface Utility {
     CONST TITLE = "Contact Form 7";
 
     function getAllForms();
-    function getTargetsFromForms(array $cf7Forms, string $post_title, int $id);
+    function getTargetsFromForms(array $cf7Forms, string $post_title, string $id);
 
 	function insertHook(string $slug = self::SLUG, string $title = self::TITLE);
     function insertTarget(int $id, string $title, string $hookSlug = self::SLUG);
