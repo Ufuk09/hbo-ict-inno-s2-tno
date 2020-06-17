@@ -2,7 +2,6 @@
 
 namespace TNO\ContactForm7\Integrations\Contracts;
 
-use HaydenPierce\ClassFinder\ClassFinder;
 use TNO\ContactForm7\Applications\Contracts\Application;
 use TNO\ContactForm7\Utilities\Contracts\Utility;
 

@@ -4,7 +4,7 @@
 namespace TNO\ContactForm7\Tests\Stubs;
 
 use TNO\ContactForm7\Utilities\Contracts\BaseUtility;
-use TNO\ContactForm7\Utilities\Helpers\TestHelper;
+use TNO\ContactForm7\Utilities\Helpers\MockHelper;
 
 class Utility extends BaseUtility
 {
@@ -70,15 +70,15 @@ class Utility extends BaseUtility
 
     function selectTarget(array $items = [], string $hookSlug = self::SLUG)
     {
-        $testUtil = new TestHelper();
-        $target = $testUtil->getTestTarget();
+        $mockHelper = new MockHelper();
+        $target = $mockHelper->getTestTarget();
         $this->select("target", $items, $hookSlug, $target);
     }
 
     function selectInput(array $items = [], string $hookSlug = self::SLUG)
     {
-        $testUtil = new TestHelper();
-        $input = $testUtil->getTestInput();
+        $mockHelper = new MockHelper();
+        $input = $mockHelper->getTestInput();
         $this->select("input", $items, $hookSlug, $input);
     }
 

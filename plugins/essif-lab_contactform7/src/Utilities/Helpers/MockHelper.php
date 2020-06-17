@@ -2,9 +2,7 @@
 
 namespace TNO\ContactForm7\Utilities\Helpers;
 
-use TNO\ContactForm7\Utilities\Contracts\TestUtility;
-
-class TestHelper implements TestUtility
+class MockHelper
 {
     function getTestTarget()
     {
