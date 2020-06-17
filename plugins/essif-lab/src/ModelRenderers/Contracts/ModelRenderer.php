@@ -11,4 +11,6 @@ interface ModelRenderer {
 	function renderFieldSignature(Integration $integration, Model $model, array $attrs = []): string;
 
 	function renderSchemaLoader(Integration $integration, Model $model, array $attrs = []): string;
+
+    function renderFieldImmutable(Integration $integration, Model $model, array $attrs = []): string;
 }

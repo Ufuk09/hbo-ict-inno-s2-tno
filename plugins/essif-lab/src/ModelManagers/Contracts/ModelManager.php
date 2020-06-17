@@ -17,6 +17,10 @@ interface ModelManager {
 
 	function select(Model $model, array $criteria = []): array;
 
+	function saveImmutable(Model $model, bool $immutable);
+
+    function getImmutable(Model $model) : bool;
+
 	function insertRelation(Model $from, Model $to): bool;
 
 	function deleteRelation(Model $from, Model $to): bool;

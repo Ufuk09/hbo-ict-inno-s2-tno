@@ -22,6 +22,7 @@ class Utility extends BaseUtility
         BaseUtility::GET_CURRENT_MODEL => [self::class, 'getCurrentModel'],
         BaseUtility::GET_MODEL => [self::class, 'getModel'],
         BaseUtility::CREATE_MODEL_META => [self::class, 'createModelMeta'],
+        BaseUtility::UPDATE_MODEL_META => [self::class, 'updateModelMeta'],
         BaseUtility::DELETE_MODEL_META => [self::class, 'deleteModelMeta'],
         BaseUtility::GET_MODEL_META => [self::class, 'getModelMeta'],
         BaseUtility::GET_MODELS => [self::class, 'getModels'],
@@ -82,6 +83,18 @@ class Utility extends BaseUtility
     }
 
     static function createModelMeta(int $postId, string $key, $value): bool
+    {
+        if (!isset(self::$meta[$postId])) {
+            self::$meta[$postId] = array();
+        }
+        if (!isset(self::$meta[$postId][$key])) {
+            self::$meta[$postId][$key] = array();
+        }
+        self::$meta[$postId][$key][] = $value;
+        return true;
+    }
+
+    static function updateModelMeta(int $postId, string $key, $value): bool
     {
         if (!isset(self::$meta[$postId])) {
             self::$meta[$postId] = array();

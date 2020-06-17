@@ -52,6 +52,7 @@ class CredentialTest extends TestCase {
 		$actual = $this->subject->getFields();
 
 		$expected = Constants::TYPE_DEFAULT_FIELDS;
+		$expected[] = Constants::FIELD_TYPE_IMMUTABLE;
 
 		$this->assertEquals($expected, $actual);
 	}

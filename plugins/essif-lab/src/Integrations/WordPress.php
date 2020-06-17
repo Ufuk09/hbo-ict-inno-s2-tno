@@ -113,6 +113,9 @@ class WordPress extends BaseIntegration {
 			case Constants::FIELD_TYPE_SCHEMA_LOADER:
 				return $this->renderer->renderSchemaLoader($this, $model);
 
+            case Constants::FIELD_TYPE_IMMUTABLE:
+                return $this->renderer->renderFieldImmutable($this, $model);
+
 			default:
 				return '';
 		}

@@ -40,24 +40,35 @@ class ModelManager extends BaseModelManager {
 		return true;
 	}
 
-	function select(Model $model, array $criteria = []): array {
-		$this->recordHistory('select', [$model]);
-		return [
-			new ConcreteModel([
-				Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 1,
-				Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
-				Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',
-			])
-		];
-	}
+    function select(Model $model, array $criteria = []): array {
+        $this->recordHistory('select', [$model]);
+        return [
+            new ConcreteModel([
+                Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 1,
+                Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
+                Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',
+            ])
+        ];
+    }
 
-	function insertRelation(Model $from, Model $to): bool {
+    function saveImmutable(Model $model, bool $immutable)
+    {
+        $this->recordHistory('save_immutable', [$model]);
+    }
+
+    function getImmutable(Model $model): bool
+    {
+        $this->recordHistory('get_immutable', [$model]);
+        return true;
+    }
+
+    function insertRelation(Model $from, Model $to): bool {
         $this->callRenderer(self::MODEL_MANAGER, $from, $to);
         $this->relations[] = $to;
 		return true;
 	}
 
-	function deleteRelation(Model $from, Model $to): bool {
+    function deleteRelation(Model $from, Model $to): bool {
         $this->callRenderer(self::MODEL_MANAGER, $from, $to);
         foreach ($this->relations as $key => $model){
             if($model == $to){
@@ -67,11 +78,11 @@ class ModelManager extends BaseModelManager {
 		return true;
 	}
 
-	function deleteAllRelations(Model $model): bool {
+    function deleteAllRelations(Model $model): bool {
 		return true;
 	}
 
-	function selectAllRelations(Model $from, Model $to): array {
+    function selectAllRelations(Model $from, Model $to): array {
         return !empty($this->relations) ? $this->relations :
             [
                 new ConcreteModel([

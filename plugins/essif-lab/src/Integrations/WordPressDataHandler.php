@@ -40,16 +40,25 @@ class WordPressDataHandler extends BaseIntegration {
 		$old = json_decode($description, true);
 		$new = is_array($old) ? $old : [];
 
-		return $this->handleModelFieldDataSignature($data, $new);
-	}
+        if (array_key_exists(Constants::FIELD_TYPE_SIGNATURE, $data)) {
+            $new = $this->handleModelFieldDataSignature($data, $new);
+        }
 
-	private function handleModelFieldDataSignature(array $data, array $new): array {
-		if (array_key_exists(Constants::FIELD_TYPE_SIGNATURE, $data)) {
-			$new[Constants::FIELD_TYPE_SIGNATURE] = $data[Constants::FIELD_TYPE_SIGNATURE];
-		}
+        $immutable = array_key_exists(Constants::FIELD_TYPE_IMMUTABLE, $data) ? true : false;
+        $this->handleModelFieldDataImmutable($model, $immutable);
 
 		return $new;
 	}
+
+	private function handleModelFieldDataSignature(array $data, array $new): array {
+		$new[Constants::FIELD_TYPE_SIGNATURE] = $data[Constants::FIELD_TYPE_SIGNATURE];
+
+		return $new;
+	}
+
+    private function handleModelFieldDataImmutable(Model $model, bool $immutable): void {
+        $this->manager->saveImmutable($model, $immutable);
+    }
 
 	private function handleModelRelationData(Model $model, array $data): void {
 		$toBeAdded = array_key_exists(Constants::ACTION_NAME_ADD_RELATION, $data) ? $data[Constants::ACTION_NAME_ADD_RELATION] : [];
