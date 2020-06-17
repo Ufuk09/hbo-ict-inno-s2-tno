@@ -57,16 +57,3 @@ $getIntegration = function () use($getApplication, $getUtility) : Integration {
 };
 
 $getIntegration()->install();
-
-//use TNO\ContactForm7\Application\Plugin;
-//use TNO\ContactForm7\Implementation\Logic;
-//$logic = new Logic;
-//
-//register_activation_hook( __FILE__, array( $logic, 'activate_essif_lab_contactform7' ) );
-//register_deactivation_hook( __FILE__, array( $logic, 'deactivate_essif_lab_contactform7' ) );
-//
-//function run_essif_lab_contactform7() {
-//	$plugin = new Plugin();
-//	$plugin->run();
-//}
-//run_essif_lab_contactform7();

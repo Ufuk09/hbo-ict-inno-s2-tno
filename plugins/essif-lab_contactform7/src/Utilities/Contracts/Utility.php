@@ -8,7 +8,6 @@ interface Utility {
 
     function getAllForms();
     function getTargetsFromForms(array $cf7Forms, string $post_title, int $id);
-    function addFormTag();
 
 	function insertHook(string $slug = self::SLUG, string $title = self::TITLE);
     function insertTarget(int $id, string $title, string $hookSlug = self::SLUG);
@@ -23,6 +22,7 @@ interface Utility {
     function selectInput(array $items = [], string $hookSlug = self::SLUG);
 
     function addEssifLabButton();
+    function addFormTag();
     function loadCustomScripts();
 
     function addActivateHook();

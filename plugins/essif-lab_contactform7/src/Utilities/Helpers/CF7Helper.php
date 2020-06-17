@@ -15,6 +15,7 @@ class CF7Helper
             $re = '/\[(?:\w+\*?\s+)?([^][]+)]/';
             preg_match_all($re, $post_content, $fields);
             $uniqueFields = array_unique($fields[1]);
+            print_r($uniqueFields);
         }
         return $uniqueFields;
     }
@@ -44,10 +45,12 @@ class CF7Helper
                 "contact-form-7" => "Contact Form 7"
             ];
 
+            $wp = new WP();
+
             /**
              *  Insert the hook
              */
-            $usedHook = apply_filters("essif-lab_select_hook", []);
+            $usedHook = $wp->selectHook();
             if (in_array($hook, $usedHook)) {
                 do_action("essif-lab_insert_hook", $hook);
             }
