@@ -6,6 +6,8 @@ interface Utility {
     CONST SLUG = "contact-form-7";
     CONST TITLE = "Contact Form 7";
 
+    function getAllForms();
+
 	function insertHook(string $slug = self::SLUG, string $title = self::TITLE);
     function insertTarget(int $id, string $title, string $hookSlug = self::SLUG);
     function insertInput(string $slug, string $title, int $targetId);

@@ -16,6 +16,14 @@ class WordPressTest extends TestCase {
     /**
      * @test
      */
+    function should_call_get_posts() {
+        $hook = $this->utility->getHistoryByFuncName("getAllForms");
+        self::assertCount(1, $hook);
+    }
+
+    /**
+     * @test
+     */
     function should_insert_hook_when_activated() {
         $hook = $this->utility->getHistoryByFuncName("insertHook");
         self::assertCount(1, $hook);

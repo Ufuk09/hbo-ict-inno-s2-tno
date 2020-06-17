@@ -6,6 +6,8 @@ use TNO\ContactForm7\Integrations\Contracts\BaseIntegration;
 
 class WordPress extends BaseIntegration {
 	function install(): void {
+	    $this->utility->getAllForms();
+
         $this->utility->insertHook();
         $this->utility->insertTarget(0, "Target_title");
         $this->utility->insertInput("Input_slug", "Input_title", 0);

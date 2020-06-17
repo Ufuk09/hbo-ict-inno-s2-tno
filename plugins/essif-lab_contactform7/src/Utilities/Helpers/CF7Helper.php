@@ -2,15 +2,10 @@
 
 namespace TNO\ContactForm7\Utilities\Helpers;
 
+use TNO\ContactForm7\Utilities\WP;
+
 class CF7Helper
 {
-    private function getAllForms()
-    {
-        $args = array('post_type' => 'wpcf7_contact_form', 'posts_per_page' => -1);
-        $cf7Forms = get_posts($args);
-        return $cf7Forms;
-    }
-
     private function extractInputsFromForm($post)
     {
         $post_content = $post->post_content;
@@ -23,16 +18,18 @@ class CF7Helper
 
     function getAllTargets()
     {
-        $cf7Forms = $this->getAllForms();
+        $wp = new WP();
+        $cf7Forms = $wp->getAllForms();
         $targets = wp_list_pluck($cf7Forms, 'post_title', 'ID');
         return $targets;
     }
 
     function getAllInputs()
     {
-        $forms = $this->getAllForms();
+        $wp = new WP();
+        $cf7Forms = $wp->getAllForms();
         $arrayForms = array();
-        foreach ($forms as $form) {
+        foreach ($cf7Forms as $form) {
             array_push($arrayForms, array(array($form->ID, $form->post_title), $this->extractInputsFromForm($form)));
         }
         return $arrayForms;

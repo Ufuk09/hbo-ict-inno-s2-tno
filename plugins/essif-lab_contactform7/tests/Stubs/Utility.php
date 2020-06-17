@@ -21,6 +21,12 @@ class Utility extends BaseUtility
         }), 0);
     }
 
+    function getAllForms()
+    {
+        $histObj = new History("getAllForms");
+        array_push($this->history, $histObj);
+    }
+
     function insertHook(string $slug = self::SLUG, string $title = self::TITLE)
     {
         $this->insert("hook", [$slug => $title]);

@@ -10,6 +10,13 @@ class WP extends BaseUtility
 {
     CONST ACTION_PREFIX = "essif-lab_";
 
+    function getAllForms()
+    {
+        $args = array('post_type' => 'wpcf7_contact_form', 'posts_per_page' => -1);
+        $cf7Forms = get_posts($args);
+        return $cf7Forms;
+    }
+
     function insertHook(string $slug = self::SLUG, string $title = self::TITLE)
     {
         $this->insert("hook", [$slug => $title]);
