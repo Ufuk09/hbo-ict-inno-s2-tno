@@ -8,21 +8,17 @@ class CF7Helper
 {
     private function extractInputsFromForm($post)
     {
-        $uniqueFields = [];
-        $uniqueKeys = [];
+        $res = [];
         if ($post->post_content != null) {
             $post_content = $post->post_content;
             $post_content = (string)strstr($post_content, 'TNO', true);
-//            var_dump($post_content);
-            //$post_content = "Je naam (verplicht) [text* your-test] Je e-mailadres (verplicht) [email* your-tester] Onderwerp [text your-testerer] Je bericht [textarea your-testererer] [submit \"Verzenden\"] 1 Postcode [text* postalCode] Adres [email* streetAddress] Onderwerp [text your-subject] Je bericht [textarea your-message] [submit \"Verzenden\"] [essif_lab] 1";
-            $re = '/([^][\s]+(?:\h+[^][\s]+)*)?\h+\[(?:\w+\*?\h+)?([^][]+)]/';
+            $re = '/\[(?:\w+\*?\s+)?([^][]+)]/';
             preg_match_all($re, $post_content, $fields);
-            $uniqueFields = array_unique($fields[2]);
-            $uniqueKeys = array_unique($fields[1]);
-            var_dump($uniqueKeys);
-
+            $slugs = array_unique($fields[1]);
+            $titles = str_replace("-"," ", $slugs);
+            $res = [$slugs, $titles ];
         }
-        return $uniqueFields;
+        return $res;
     }
 
     function getAllTargets()
@@ -39,7 +35,8 @@ class CF7Helper
         $cf7Forms = $wp->getAllForms();
         $arrayForms = array();
         foreach ($cf7Forms as $form) {
-            array_push($arrayForms, array(array($form->ID, $form->post_title), $this->extractInputsFromForm($form)));
+            array_push($arrayForms, array($form->ID, $form->post_title), $this->extractInputsFromForm($form));
+            break;
         }
         return $arrayForms;
     }
@@ -75,14 +72,15 @@ class CF7Helper
          */
         foreach ($this->getAllInputs() as $input) {
             $target = $input[0];
-            $input = $input[1];
-            $inputs = $wp->selectInput([$target[0] => $target[1]]);
-            //apply_filters("essif-lab_select_input", $target);
-            foreach ($input as $inp) {
-                if (!in_array($inp, $inputs)) {
-                    //$wp->insertInput($slug, $title, $target[0]);
-                    //$wp->insertInput($inp[0], $inp[1], $target[0]);
-                    //do_action("essif-lab_insert_input", $inp, $target);
+            $targetHook = $wp->selectInput([$target[0] => $target[1]]);
+
+            $slugs = $input[1][0];
+            $titles = $input[1][1];
+            $inputs = [ $slugs, $titles ];
+
+            foreach ($inputs as $inp) {
+                if (!in_array($inp, $targetHook)) {
+                    $wp->insertInput($inp[0], $inp[1], $target[0]);
                 }
             }
         }
@@ -101,11 +99,15 @@ class CF7Helper
          */
         foreach ($this->getAllInputs() as $input) {
             $target = $input[0];
-            $input = $input[1];
-            $inputs = apply_filters("essif-lab_select_input", $target);
-            foreach ($input as $inp) {
-                if (in_array($inp, $inputs)) {
-                    do_action("essif-lab_delete_input", $inp, $target);
+            $targetHook = $wp->selectInput([$target[0] => $target[1]]);
+
+            $slugs = $input[1][0];
+            $titles = $input[1][1];
+            $inputs = [ $slugs, $titles ];
+
+            foreach ($inputs as $inp) {
+                if (in_array($inp, $targetHook)) {
+                    $wp->deleteInput($inp[0], $inp[1], $target[0]);
                 }
             }
         }

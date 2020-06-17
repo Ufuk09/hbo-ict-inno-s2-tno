@@ -57,18 +57,3 @@ $getIntegration = function () use($getApplication, $getUtility) : Integration {
 };
 
 $getIntegration()->install();
-
-
-
-$cf7 = new \TNO\ContactForm7\Utilities\Helpers\CF7Helper();
-
-foreach ($cf7->getAllInputs() as $input) {
-    $target = $input[0];
-    $input = $input[1];
-//    print_r($input);
-//    print_r([$target[0] => $target[1]]);
-//    print_r($input);
-    foreach ($input as $inp) {
-//        print_r($inp);
-    }
-}
