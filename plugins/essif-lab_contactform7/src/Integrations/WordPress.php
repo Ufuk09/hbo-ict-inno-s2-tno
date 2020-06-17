@@ -8,6 +8,7 @@ class WordPress extends BaseIntegration {
 	function install(): void {
 	    $this->utility->getAllForms();
 	    $this->utility->getTargetsFromForms([], "Title", 1);
+	    $this->utility->addFormTag();
 
         $this->utility->insertHook();
         $this->utility->insertTarget(0, "Target_title");

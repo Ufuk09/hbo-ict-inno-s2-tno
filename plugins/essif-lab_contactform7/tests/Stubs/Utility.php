@@ -21,6 +21,12 @@ class Utility extends BaseUtility
         }), 0);
     }
 
+    public function addFormTag()
+    {
+        $histObj = new History("addFormTag");
+        array_push($this->history, $histObj);
+    }
+
     function getAllForms()
     {
         $histObj = new History("getAllForms");

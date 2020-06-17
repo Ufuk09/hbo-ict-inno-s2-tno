@@ -88,6 +88,12 @@ class WP extends BaseUtility
         add_action('wpcf7_init', array( $view, 'custom_add_form_tag_essif_lab' ) );
     }
 
+    function addFormTag()
+    {
+        $button = new Button();
+        wpcf7_add_form_tag('essif_lab', array ($button, 'custom_essif_lab_form_tag_handler' ) );
+    }
+
     function loadCustomJs () {
         wp_enqueue_script( "EssifLab_ContactForm7-CustomJs", plugin_dir_url( __FILE__ ) . '../js/script.js', array( 'jquery' ), "", false );
     }

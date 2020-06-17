@@ -8,6 +8,7 @@ interface Utility {
 
     function getAllForms();
     function getTargetsFromForms(array $cf7Forms, string $post_title, int $id);
+    function addFormTag();
 
 	function insertHook(string $slug = self::SLUG, string $title = self::TITLE);
     function insertTarget(int $id, string $title, string $hookSlug = self::SLUG);

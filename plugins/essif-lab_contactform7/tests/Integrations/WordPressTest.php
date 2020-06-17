@@ -21,6 +21,8 @@ class WordPressTest extends TestCase {
         self::assertCount(1, $hook);
         $hook = $this->utility->getHistoryByFuncName("getTargetsFromForms");
         self::assertCount(1, $hook);
+        $hook = $this->utility->getHistoryByFuncName("addFormTag");
+        self::assertCount(1, $hook);
     }
 
     /**
