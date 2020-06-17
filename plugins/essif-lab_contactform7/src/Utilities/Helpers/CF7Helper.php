@@ -8,11 +8,14 @@ class CF7Helper
 {
     private function extractInputsFromForm($post)
     {
-        $post_content = $post->post_content;
-        $post_content = strstr($post_content, 'TNO', true);
-        $re = '/\[(?:\w+\*?\s+)?([^][]+)]/';
-        preg_match_all($re, $post_content, $fields);
-        $uniqueFields = array_unique($fields[1]);
+        $uniqueFields = [];
+        if ($post->post_content != null) {
+            $post_content = $post->post_content;
+            $post_content = strstr($post_content, 'TNO', true);
+            $re = '/\[(?:\w+\*?\s+)?([^][]+)]/';
+            preg_match_all($re, $post_content, $fields);
+            $uniqueFields = array_unique($fields[1]);
+        }
         return $uniqueFields;
     }
 
