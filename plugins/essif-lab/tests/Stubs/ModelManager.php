@@ -5,7 +5,6 @@ namespace TNO\EssifLab\Tests\Stubs;
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\ModelManagers\Contracts\BaseModelManager;
 use TNO\EssifLab\Models\Contracts\Model;
-use TNO\EssifLab\Tests\Stubs\Model as ConcreteModel;
 
 class ModelManager extends BaseModelManager {
 	use WithHistory;
@@ -41,9 +40,10 @@ class ModelManager extends BaseModelManager {
 	}
 
 	function select(Model $model, array $criteria = []): array {
-		$this->recordHistory('select', [$model]);
+		$this->recordHistory('select', [$model, $criteria]);
+		$fqn = get_class($model);
 		return [
-			new ConcreteModel([
+			new $fqn([
 				Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 1,
 				Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
 				Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',
@@ -72,9 +72,11 @@ class ModelManager extends BaseModelManager {
 	}
 
 	function selectAllRelations(Model $from, Model $to): array {
+		$this->recordHistory('selectAllRelations', [$from, $to]);
+		$fqn = get_class($to);
         return !empty($this->relations) ? $this->relations :
             [
-                new ConcreteModel([
+                new $fqn([
                     Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 1,
                     Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
                     Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',

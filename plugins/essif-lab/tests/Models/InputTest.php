@@ -26,7 +26,7 @@ class InputTest extends TestCase {
 	function should_have_attribute_names(): void {
 		$actual = $this->subject->getAttributeNames();
 
-		$expected = Constants::TYPE_DEFAULT_ATTRIBUTE_NAMES;
+		$expected = array_merge(Constants::TYPE_DEFAULT_ATTRIBUTE_NAMES, [Constants::TYPE_INSTANCE_SLUG_ATTR]);
 
 		$this->assertEquals($expected, $actual);
 	}
