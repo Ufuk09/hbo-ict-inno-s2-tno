@@ -4,7 +4,7 @@
 namespace TNO\ContactForm7\Tests\Stubs;
 
 use TNO\ContactForm7\Utilities\Contracts\BaseUtility;
-use TNO\ContactForm7\Utilities\Helpers\MockHelper;
+use TNO\ContactForm7\Tests\MockHelper;
 
 class Utility extends BaseUtility
 {
@@ -33,7 +33,7 @@ class Utility extends BaseUtility
         array_push($this->history, $histObj);
     }
 
-    public function getTargetsFromForms(array $cf7Forms, string $post_title, int $id)
+    public function getTargetsFromForms(array $cf7Forms, string $post_title, string $id)
     {
         $histObj = new History("getTargetsFromForms");
         array_push($this->history, $histObj);

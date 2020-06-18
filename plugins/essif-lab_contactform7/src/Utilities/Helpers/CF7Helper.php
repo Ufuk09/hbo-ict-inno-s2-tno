@@ -3,9 +3,15 @@
 namespace TNO\ContactForm7\Utilities\Helpers;
 
 use TNO\ContactForm7\Utilities\WP;
+use TNO\ContactForm7\Views\Button;
 
-class CF7Helper
+class CF7Helper extends WP
 {
+    public function __construct()
+    {
+        parent::__construct($this);
+    }
+
     private function extractInputsFromForm($post)
     {
         $res = [];
@@ -23,21 +29,15 @@ class CF7Helper
 
     function getAllTargets()
     {
-        $wp = new WP();
-        $cf7Forms = $wp->getAllForms();
-        $targets = $wp->getTargetsFromForms($cf7Forms, 'post_title', 'ID');
+        $cf7Forms = parent::getAllForms();
+        $targets = parent::getTargetsFromForms($cf7Forms, 'post_title', 'ID');
         return $targets;
     }
 
     function getAllInputs()
     {
-        $wp = new WP();
-        $cf7Forms = $wp->getAllForms();
-        $arrayForms = array();
-        foreach ($cf7Forms as $form) {
-            array_push($arrayForms, array($form->ID, $form->post_title), $this->extractInputsFromForm($form));
-            break;
-        }
+        $cf7Forms = parent::getAllForms();
+        $arrayForms = array_map(null, array($cf7Forms->ID, $cf7Forms->post_title), $this->extractInputsFromForm($cf7Forms));
         return $arrayForms;
     }
 
@@ -47,23 +47,21 @@ class CF7Helper
             "contact-form-7" => "Contact Form 7"
         ];
 
-        $wp = new WP();
-
         /**
          *  Insert the hook
          */
-        $usedHook = $wp->selectHook();
+        $usedHook = parent::selectHook();
         if (!in_array($hook, $usedHook)) {
-            $wp->insertHook();
+            parent::insertHook();
         }
 
         /**
          *  Insert the targets
          */
-        $targets = $wp->selectTarget();
+        $targets = parent::selectTarget();
         foreach ($this->getAllTargets() as $key => $target) {
             if (!in_array($target, $targets)) {
-                $wp->insertTarget($key, $target);
+                parent::insertTarget($key, $target);
             }
         }
 
@@ -72,7 +70,7 @@ class CF7Helper
          */
         foreach ($this->getAllInputs() as $input) {
             $target = $input[0];
-            $targetHook = $wp->selectInput([$target[0] => $target[1]]);
+            $targetHook = parent::selectInput([$target[0] => $target[1]]);
 
             $slugs = $input[1][0];
             $titles = $input[1][1];
@@ -80,7 +78,7 @@ class CF7Helper
 
             foreach ($inputs as $inp) {
                 if (!in_array($inp, $targetHook)) {
-                    $wp->insertInput($inp[0], $inp[1], $target[0]);
+                    parent::insertInput($inp[0], $inp[1], $target[0]);
                 }
             }
         }
@@ -92,14 +90,12 @@ class CF7Helper
             "contact-form-7" => "Contact Form 7"
         ];
 
-        $wp = new WP();
-
         /**
          *  Delete the inputs
          */
         foreach ($this->getAllInputs() as $input) {
             $target = $input[0];
-            $targetHook = $wp->selectInput([$target[0] => $target[1]]);
+            $targetHook = parent::selectInput([$target[0] => $target[1]]);
 
             $slugs = $input[1][0];
             $titles = $input[1][1];
@@ -107,7 +103,7 @@ class CF7Helper
 
             foreach ($inputs as $inp) {
                 if (in_array($inp, $targetHook)) {
-                    $wp->deleteInput($inp[0], $inp[1], $target[0]);
+                    parent::deleteInput($inp[0], $inp[1], $target[0]);
                 }
             }
         }
@@ -115,11 +111,11 @@ class CF7Helper
         /**
          *  Delete the targets
          */
-        $targets = $wp->selectTarget();
+        $targets = parent::selectTarget();
         if (!empty($targets)) {
             foreach ($this->getAllTargets() as $key => $target) {
                 if (in_array($target, $targets)) {
-                    $wp->deleteTarget($key, $target);
+                    parent::deleteTarget($key, $target);
                 }
             }
         }
@@ -127,9 +123,9 @@ class CF7Helper
         /**
          *  Delete the hook
          */
-        $usedHook = $wp->selectHook();
+        $usedHook = parent::selectHook();
         if (in_array($hook, $usedHook)) {
-            $wp->deleteHook();
+            parent::deleteHook();
         }
 
     }

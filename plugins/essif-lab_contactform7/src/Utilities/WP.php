@@ -8,6 +8,15 @@ use TNO\ContactForm7\Utilities\Helpers\CF7Helper;
 
 class WP extends BaseUtility
 {
+    private $cf7helper;
+    private $button;
+
+    public function __construct(CF7Helper $cf7helper, Button $button)
+    {
+        $this->cf7helper = $cf7helper;
+        $this->button = $button;
+    }
+
     CONST ACTION_PREFIX = "essif-lab_";
 
     function getAllForms()
@@ -84,14 +93,17 @@ class WP extends BaseUtility
     }
 
     function addEssifLabButton () {
-        $view = new Button();
-        add_action('wpcf7_init', array( $view, 'custom_add_form_tag_essif_lab' ) );
+        add_action('wpcf7_init', array( $this, 'custom_add_form_tag_essif_lab' ) );
+    }
+
+    function custom_add_form_tag_essif_lab()
+    {
+        $this->addFormTag();
     }
 
     function addFormTag()
     {
-        $button = new Button();
-        wpcf7_add_form_tag('essif_lab', array ($button, 'custom_essif_lab_form_tag_handler' ) );
+        wpcf7_add_form_tag('essif_lab', array ( $this->button, 'custom_essif_lab_form_tag_handler' ) );
     }
 
     function loadCustomJs () {
@@ -104,13 +116,11 @@ class WP extends BaseUtility
 
     function addActivateHook()
     {
-        $cf7helper = new CF7Helper();
-        register_deactivation_hook( __FILE__, array( $cf7helper, 'addAllOnActivate' ) );
+        register_deactivation_hook( __FILE__, array( $this->cf7helper, 'addAllOnActivate' ) );
     }
 
     function addDeactivateHook()
     {
-        $cf7helper = new CF7Helper();
-        register_deactivation_hook( __FILE__, array( $cf7helper, 'deleteAllOnDeactivate' ) );
+        register_deactivation_hook( __FILE__, array( $this->cf7helper, 'deleteAllOnDeactivate' ) );
     }
 }

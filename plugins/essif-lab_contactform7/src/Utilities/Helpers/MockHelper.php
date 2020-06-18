@@ -1,6 +1,6 @@
 <?php
 
-namespace TNO\ContactForm7\Utilities\Helpers;
+namespace TNO\ContactForm7\Tests;
 
 class MockHelper
 {

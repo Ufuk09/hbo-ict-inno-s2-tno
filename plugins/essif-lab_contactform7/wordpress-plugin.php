@@ -24,6 +24,8 @@ use TNO\ContactForm7\Integrations\Contracts\Integration;
 use TNO\ContactForm7\Utilities\Contracts\Utility;
 use TNO\ContactForm7\Utilities\WP;
 use TNO\ContactForm7\Integrations\WordPress;
+use TNO\ContactForm7\Utilities\Helpers\CF7Helper;
+use TNO\ContactForm7\Views\Button;
 
 $wpPluginApi = ABSPATH.'wp-admin/includes/plugin.php';
 if (! function_exists('get_plugin_data') && file_exists($wpPluginApi)) {
@@ -48,8 +50,16 @@ $getApplication = function (): Application {
     return new Plugin($name(), $namespace(), $appDir());
 };
 
-$getUtility = function (): Utility {
-    return new WP();
+$getCf7Helper = function (): CF7Helper {
+    return new CF7Helper();
+};
+
+$getButton = function (): Button {
+    return new Button();
+};
+
+$getUtility = function () use ($getButton, $getCf7Helper): Utility {
+    return new WP($getCf7Helper(), $getButton());
 };
 
 $getIntegration = function () use($getApplication, $getUtility) : Integration {

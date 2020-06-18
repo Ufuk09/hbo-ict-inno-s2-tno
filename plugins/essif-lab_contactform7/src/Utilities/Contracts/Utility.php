@@ -2,6 +2,8 @@
 
 namespace TNO\ContactForm7\Utilities\Contracts;
 
+use TNO\ContactForm7\Views\Button;
+
 interface Utility {
     CONST SLUG = "contact-form-7";
     CONST TITLE = "Contact Form 7";
