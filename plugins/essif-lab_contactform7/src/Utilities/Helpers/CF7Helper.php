@@ -3,7 +3,6 @@
 namespace TNO\ContactForm7\Utilities\Helpers;
 
 use TNO\ContactForm7\Utilities\WP;
-use TNO\ContactForm7\Views\Button;
 
 class CF7Helper extends WP
 {
@@ -30,15 +29,13 @@ class CF7Helper extends WP
     function getAllTargets()
     {
         $cf7Forms = parent::getAllForms();
-        $targets = parent::getTargetsFromForms($cf7Forms, 'post_title', 'ID');
-        return $targets;
+        return parent::getTargetsFromForms($cf7Forms, 'post_title', 'ID');
     }
 
     function getAllInputs()
     {
         $cf7Forms = parent::getAllForms();
-        $arrayForms = array_map(null, array($cf7Forms->ID, $cf7Forms->post_title), $this->extractInputsFromForm($cf7Forms));
-        return $arrayForms;
+        return array_map(null, array($cf7Forms->ID, $cf7Forms->post_title), $this->extractInputsFromForm($cf7Forms));
     }
 
     function addAllOnActivate()
