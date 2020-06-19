@@ -91,8 +91,8 @@ class WP extends BaseUtility {
 		return $result;
 	}
 
-	static function updateModel(Model $model): bool {
-		$result = wp_update_post(self::mapModelToPost($model), true);
+	static function updateModel(array $post): bool {
+		$result = wp_update_post($post, true);
 		if (! is_int($result)) {
 			throw $result;
 		}

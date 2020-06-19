@@ -26,9 +26,9 @@ class WordPressDataHandler extends BaseIntegration {
 		$newData = $this->handleModelFieldData($model, $data);
 		if (! empty($id) && ! empty($newData)) {
 			$this->utility->call(WP::REMOVE_ALL_ACTIONS_AND_EXEC, $hook, function () use ($id, $newData) {
-				$post = new \stdClass();
-				$post->ID = $id;
-				$post->post_content = json_encode($newData);
+				$post = array();
+				$post[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR] = $id;
+				$post['post_content'] = json_encode($newData);
 				$this->utility->call(BaseUtility::UPDATE_MODEL, $post);
 			});
 		}
@@ -44,8 +44,9 @@ class WordPressDataHandler extends BaseIntegration {
             $new = $this->handleModelFieldDataSignature($data, $new);
         }
 
-        $immutable = array_key_exists(Constants::FIELD_TYPE_IMMUTABLE, $data) ? true : false;
-        $this->handleModelFieldDataImmutable($model, $immutable);
+        if ($model->getTypeName() == 'credential'){
+            $new = $this->handleModelFieldDataImmutable(array_key_exists(Constants::FIELD_TYPE_IMMUTABLE, $data), $new);
+        }
 
 		return $new;
 	}
@@ -56,8 +57,10 @@ class WordPressDataHandler extends BaseIntegration {
 		return $new;
 	}
 
-    private function handleModelFieldDataImmutable(Model $model, bool $immutable): void {
-        $this->manager->saveImmutable($model, $immutable);
+    private function handleModelFieldDataImmutable(bool $immutable, array $new): array {
+        $new[Constants::FIELD_TYPE_IMMUTABLE] = $immutable;
+
+        return $new;
     }
 
 	private function handleModelRelationData(Model $model, array $data): void {
