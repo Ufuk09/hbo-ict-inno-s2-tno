@@ -37,6 +37,8 @@ abstract class Constants {
 
 	const FIELD_TYPE_SCHEMA_LOADER = 'schema_loader';
 
+    const FIELD_TYPE_IMMUTABLE = 'immutable';
+
 	const TYPE_DEFAULT_ATTRIBUTE_NAMES = [
 		self::TYPE_INSTANCE_IDENTIFIER_ATTR,
 		self::TYPE_INSTANCE_TITLE_ATTR,

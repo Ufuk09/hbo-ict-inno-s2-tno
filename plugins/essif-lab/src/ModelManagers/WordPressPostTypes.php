@@ -30,7 +30,7 @@ class WordPressPostTypes extends BaseModelManager {
 		return $this->insert($model);
 	}
 
-	function select(Model $model, array $criteria = []): array {
+    function select(Model $model, array $criteria = []): array {
 		$args = array_merge([
 			Constants::MODEL_TYPE_INDICATOR => $model->getTypeName(),
 		], $criteria);
@@ -38,7 +38,7 @@ class WordPressPostTypes extends BaseModelManager {
 		return $this->utility->call(BaseUtility::GET_MODELS, $args);
 	}
 
-	function delete(Model $model): bool {
+    function delete(Model $model): bool {
 		$id = $this->getGivenOrCurrentModelId($model);
 
         $resultRelations = $this->deleteAllRelations($model);
@@ -48,7 +48,7 @@ class WordPressPostTypes extends BaseModelManager {
         return ($result !== null || $result !== false) && ($resultRelations !== null || $resultRelations !== false);
 	}
 
-	function insertRelation(Model $from, Model $to): bool {
+    function insertRelation(Model $from, Model $to): bool {
 		$fromId = $this->getGivenOrCurrentModelId($from);
 		$toId = $this->getModelId($to);
 
@@ -65,7 +65,7 @@ class WordPressPostTypes extends BaseModelManager {
 		return $fromTo && $toFrom;
 	}
 
-	function deleteRelation(Model $from, Model $to): bool {
+    function deleteRelation(Model $from, Model $to): bool {
 		$fromId = $this->getGivenOrCurrentModelId($from);
 		$toId = $this->getModelId($to);
 
@@ -82,7 +82,7 @@ class WordPressPostTypes extends BaseModelManager {
 		return $fromTo && $toFrom;
 	}
 
-	function deleteAllRelations(Model $from): bool {
+    function deleteAllRelations(Model $from): bool {
 		$result = true;
 		$fromId = $this->getGivenOrCurrentModelId($from);
         BaseModelManager::forEachModel($from->getRelations(), function (Model $to) use (&$result, $from, $fromId) {
@@ -101,7 +101,7 @@ class WordPressPostTypes extends BaseModelManager {
 		return $result;
 	}
 
-	function selectAllRelations(Model $from, Model $to): array {
+    function selectAllRelations(Model $from, Model $to): array {
 		$fromId = $this->getGivenOrCurrentModelId($from);
 
 		$relationFromToKey = $this->relationKey.$to->getTypeName();
@@ -114,7 +114,7 @@ class WordPressPostTypes extends BaseModelManager {
 		return empty($relationIds) ?  [] : $this->utility->call(BaseUtility::GET_MODELS, $args);
 	}
 
-	private function getGivenOrCurrentModelId(Model $model): int {
+    private function getGivenOrCurrentModelId(Model $model): int {
 		$id = $this->getModelId($model);
 
 		if ($id > 0) {
@@ -130,7 +130,7 @@ class WordPressPostTypes extends BaseModelManager {
 		throw new MissingIdentifier($model->getSingularName());
 	}
 
-	private static function getModelId(Model $model): int {
+    private static function getModelId(Model $model): int {
 		$attributes = $model->getAttributes();
 		$idKey = Constants::TYPE_INSTANCE_IDENTIFIER_ATTR;
 
