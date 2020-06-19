@@ -3,18 +3,18 @@
 namespace TNO\ContactForm7\Utilities;
 
 use TNO\ContactForm7\Utilities\Contracts\BaseUtility;
-use TNO\ContactForm7\Views\Button;
 use TNO\ContactForm7\Utilities\Helpers\CF7Helper;
+use TNO\ContactForm7\Views\Button;
 
 class WP extends BaseUtility
 {
+    private const TARGET = "target";
+    private const INPUT = "input";
     private $cf7helper;
-    private $button;
 
-    public function __construct(CF7Helper $cf7helper, Button $button)
+    public function __construct(CF7Helper $cf7helper)
     {
         $this->cf7helper = $cf7helper;
-        $this->button = $button;
     }
 
     CONST ACTION_PREFIX = "essif-lab_";
@@ -22,14 +22,12 @@ class WP extends BaseUtility
     function getAllForms()
     {
         $args = array('post_type' => 'wpcf7_contact_form', 'posts_per_page' => -1);
-        $cf7Forms = get_posts($args);
-        return $cf7Forms;
+        return get_posts($args);
     }
 
     function getTargetsFromForms(array $cf7Forms, string $post_title, string $id)
     {
-        $targets = wp_list_pluck($cf7Forms, 'post_title', 'ID');
-        return $targets;
+        return wp_list_pluck($cf7Forms, 'post_title', 'ID');
     }
 
     function insertHook(string $slug = self::SLUG, string $title = self::TITLE)
@@ -39,12 +37,12 @@ class WP extends BaseUtility
 
     function insertTarget(int $id, string $title, string $hookSlug = self::SLUG)
     {
-        $this->insert("target", [$id => $title], $hookSlug);
+        $this->insert(self::TARGET, [$id => $title], $hookSlug);
     }
 
     function insertInput(string $slug, string $title, int $targetId)
     {
-        $this->insert("input", [$slug => $title], $targetId);
+        $this->insert(self::INPUT, [$slug => $title], $targetId);
     }
 
     private function insert($suffix, ...$params)
@@ -59,12 +57,12 @@ class WP extends BaseUtility
 
     function deleteTarget(int $id, string $title, string $hookSlug = self::SLUG)
     {
-        $this->delete("target", [$id => $title], $hookSlug);
+        $this->delete(self::TARGET, [$id => $title], $hookSlug);
     }
 
     function deleteInput(string $slug, string $title, int $targetId)
     {
-        $this->delete("input", [$slug => $title], $targetId);
+        $this->delete(self::INPUT, [$slug => $title], $targetId);
     }
 
     private function delete($suffix, ...$params)
@@ -72,38 +70,29 @@ class WP extends BaseUtility
         do_action(self::ACTION_PREFIX . "delete_" . $suffix, ... $params);
     }
 
-    function selectHook(string $slug = self::SLUG, string $title = self::TITLE)
-    {
+    function selectHook(string $slug = self::SLUG, string $title = self::TITLE) : array  {
         return $this->select("hook", [$slug => $title]);
     }
 
-    function selectTarget(array $items = [], string $hookSlug = self::SLUG)
-    {
-        return $this->select("target", $items, $hookSlug);
+    function selectTarget(array $items = [], string $hookSlug = self::SLUG) : array  {
+        return $this->select(self::TARGET, $items, $hookSlug);
     }
 
-    function selectInput(array $items = [], string $hookSlug = self::SLUG)
-    {
-        return $this->select("input", $items, $hookSlug);
+    function selectInput(array $items = [], string $hookSlug = self::SLUG) : array {
+        return $this->select(self::INPUT, $items, $hookSlug);
     }
 
-    private function select($suffix, ...$params)
-    {
-        apply_filters(self::ACTION_PREFIX . "select_" . $suffix, ... $params);
+    private function select($suffix, ...$params) : array {
+        return apply_filters(self::ACTION_PREFIX . "select_" . $suffix, ... $params);
     }
 
     function addEssifLabButton () {
-        add_action('wpcf7_init', array( $this, 'custom_add_form_tag_essif_lab' ) );
+        add_action('wpcf7_init', array( $this, 'addFormTag' ) );
     }
 
-    function custom_add_form_tag_essif_lab()
+    function addFormTag(Button $button)
     {
-        $this->addFormTag();
-    }
-
-    function addFormTag()
-    {
-        wpcf7_add_form_tag('essif_lab', array ( $this->button, 'custom_essif_lab_form_tag_handler' ) );
+        wpcf7_add_form_tag('essif_lab', array ( $button, 'custom_essif_lab_form_tag_handler' ) );
     }
 
     function loadCustomJs () {

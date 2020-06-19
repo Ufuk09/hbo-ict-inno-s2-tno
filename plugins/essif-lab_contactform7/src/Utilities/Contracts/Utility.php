@@ -24,7 +24,7 @@ interface Utility {
     function selectInput(array $items = [], string $hookSlug = self::SLUG);
 
     function addEssifLabButton();
-    function addFormTag();
+    function addFormTag(Button $button);
     function loadCustomScripts();
 
     function addActivateHook();
