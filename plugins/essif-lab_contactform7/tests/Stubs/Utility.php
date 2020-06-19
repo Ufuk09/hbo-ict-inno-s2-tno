@@ -4,7 +4,6 @@
 namespace TNO\ContactForm7\Tests\Stubs;
 
 use TNO\ContactForm7\Utilities\Contracts\BaseUtility;
-use TNO\ContactForm7\Views\Button;
 
 class Utility extends BaseUtility
 {
@@ -19,12 +18,6 @@ class Utility extends BaseUtility
         return array_slice(array_filter($this->history, function (History $history) use ($funcName) {
             return $history->getFuncName() === $funcName;
         }), 0);
-    }
-
-    public function addFormTag(Button $button)
-    {
-        $histObj = new History("addFormTag");
-        array_push($this->history, $histObj);
     }
 
     function getAllForms()

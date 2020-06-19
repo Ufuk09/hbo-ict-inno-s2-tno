@@ -3,7 +3,6 @@
 namespace TNO\ContactForm7\Utilities\Contracts;
 
 use TNO\ContactForm7\Utilities\Helpers\CF7Helper;
-use TNO\ContactForm7\Views\Button;
 
 interface Utility {
     CONST SLUG = "contact-form-7";

@@ -25,7 +25,6 @@ use TNO\ContactForm7\Utilities\Contracts\Utility;
 use TNO\ContactForm7\Utilities\WP;
 use TNO\ContactForm7\Integrations\WordPress;
 use TNO\ContactForm7\Utilities\Helpers\CF7Helper;
-use TNO\ContactForm7\Views\Button;
 
 $wpPluginApi = ABSPATH.'wp-admin/includes/plugin.php';
 if (! function_exists('get_plugin_data') && file_exists($wpPluginApi)) {
