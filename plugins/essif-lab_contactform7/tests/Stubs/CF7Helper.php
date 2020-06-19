@@ -1,29 +1,27 @@
 <?php
 
-namespace TNO\ContactForm7\Tests;
+namespace TNO\ContactForm7\Tests\Stubs;
 
-class MockHelper
+class CF7Helper
 {
     function getTestTarget()
     {
-        $targets = [
+        return [
             12 => "Contactform 1",
             13 => "Contactform 2",
             14 => "Contactform 3",
             15 => "Contactform 4",
             16 => "Contactform 5"
         ];
-        return $targets;
     }
 
     function getTestInput()
     {
-        $input = [
+        return [
             12 => "Contactform 1",
             ["my-email" => "Email",
                 "my-name" => "Name",
                 "my-message" => "Message"]
         ];
-        return $input;
     }
 }
