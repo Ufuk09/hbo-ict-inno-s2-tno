@@ -4,13 +4,15 @@ namespace TNO\ContactForm7\Tests\Integrations;
 
 use TNO\ContactForm7\Integrations\WordPress;
 use TNO\ContactForm7\Tests\TestCase;
+use TNO\ContactForm7\Utilities\Helpers\CF7Helper;
 
 class WordPressTest extends TestCase {
     protected function setUp(): void
     {
         parent::setUp();
         $integration = new WordPress($this->application, $this->utility);
-        $integration->install();
+        $cf7Helper = new CF7Helper();
+        $integration->install($cf7Helper);
     }
 
     /**
