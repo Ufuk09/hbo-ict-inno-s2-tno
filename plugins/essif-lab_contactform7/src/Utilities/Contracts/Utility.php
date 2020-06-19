@@ -2,6 +2,7 @@
 
 namespace TNO\ContactForm7\Utilities\Contracts;
 
+use TNO\ContactForm7\Utilities\Helpers\CF7Helper;
 use TNO\ContactForm7\Views\Button;
 
 interface Utility {
@@ -23,10 +24,9 @@ interface Utility {
     function selectTarget(array $items = [], string $hookSlug = self::SLUG);
     function selectInput(array $items = [], string $hookSlug = self::SLUG);
 
-    function addEssifLabButton();
-    function addFormTag();
+    function addEssifLabFormTag();
     function loadCustomScripts();
 
-    function addActivateHook();
-    function addDeactivateHook();
+    function addActivateHook(CF7Helper $cf7Helper, String $appDir);
+    function addDeactivateHook(CF7Helper $cf7Helper, String $appDir);
 }

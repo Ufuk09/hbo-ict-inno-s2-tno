@@ -3,7 +3,6 @@
 
 namespace TNO\ContactForm7\Tests\Stubs;
 
-use TNO\ContactForm7\Tests\MockHelper;
 use TNO\ContactForm7\Utilities\Contracts\BaseUtility;
 use TNO\ContactForm7\Views\Button;
 
@@ -89,14 +88,14 @@ class Utility extends BaseUtility
 
     function selectTarget(array $items = [], string $hookSlug = self::SLUG)
     {
-        $mockHelper = new MockHelper();
+        $mockHelper = new CF7Helper();
         $target = $mockHelper->getTestTarget();
         $this->select("target", $items, $hookSlug, $target);
     }
 
     function selectInput(array $items = [], string $hookSlug = self::SLUG)
     {
-        $mockHelper = new MockHelper();
+        $mockHelper = new CF7Helper();
         $input = $mockHelper->getTestInput();
         $this->select("input", $items, $hookSlug, $input);
     }
@@ -107,7 +106,7 @@ class Utility extends BaseUtility
         array_push($this->history, $histObj);
     }
 
-    function addEssifLabButton()
+    function addEssifLabFormTag()
     {
         $histObj = new History("addEssifLabButton");
         array_push($this->history, $histObj);
@@ -119,13 +118,13 @@ class Utility extends BaseUtility
         array_push($this->history, $histObj);
     }
 
-    function addActivateHook()
+    function addActivateHook(\TNO\ContactForm7\Utilities\Helpers\CF7Helper $cf7Helper, String $appDir)
     {
         $histObj = new History("addActivateHook");
         array_push($this->history, $histObj);
     }
 
-    function addDeactivateHook()
+    function addDeactivateHook(\TNO\ContactForm7\Utilities\Helpers\CF7Helper $cf7Helper, String $appDir)
     {
         $histObj = new History("addDeactivateHook");
         array_push($this->history, $histObj);

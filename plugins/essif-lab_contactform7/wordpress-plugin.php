@@ -54,10 +54,6 @@ $getCf7Helper = function (): CF7Helper {
     return new CF7Helper();
 };
 
-$getButton = function (): Button {
-    return new Button();
-};
-
 $getUtility = function () use ($getCf7Helper): Utility {
     return new WP($getCf7Helper());
 };
@@ -66,4 +62,4 @@ $getIntegration = function () use($getApplication, $getUtility) : Integration {
     return new WordPress($getApplication(), $getUtility());
 };
 
-$getIntegration()->install();
+$getIntegration()->install($getCf7Helper());

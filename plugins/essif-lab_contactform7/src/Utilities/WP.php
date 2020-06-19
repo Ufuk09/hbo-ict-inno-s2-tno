@@ -86,13 +86,10 @@ class WP extends BaseUtility
         return apply_filters(self::ACTION_PREFIX . "select_" . $suffix, ... $params);
     }
 
-    function addEssifLabButton () {
-        add_action('wpcf7_init', array( $this, 'addFormTag' ) );
-    }
-
-    function addFormTag()
-    {
-        wpcf7_add_form_tag('essif_lab', array ( 'Button', 'custom_essif_lab_form_tag_handler' ) );
+    function addEssifLabFormTag () {
+        add_action('wpcf7_init',
+            wpcf7_add_form_tag('essif_lab', array ( Button::class, 'custom_essif_lab_form_tag_handler' ) )
+        );
     }
 
     function loadCustomJs () {
@@ -103,13 +100,13 @@ class WP extends BaseUtility
         add_action( 'wp_enqueue_scripts', array( $this , 'loadCustomJs' ) );
     }
 
-    function addActivateHook()
+    function addActivateHook(CF7Helper $cf7Helper, String $appDir)
     {
-        register_deactivation_hook( __FILE__, array( $this->cf7helper, 'addAllOnActivate' ) );
+        register_deactivation_hook( $appDir, array( $cf7Helper, 'addAllOnActivate' ) );
     }
 
-    function addDeactivateHook()
+    function addDeactivateHook(CF7Helper $cf7Helper, String $appDir)
     {
-        register_deactivation_hook( __FILE__, array( $this->cf7helper, 'deleteAllOnDeactivate' ) );
+        register_deactivation_hook( $appDir, array( $cf7Helper, 'deleteAllOnDeactivate' ) );
     }
 }
