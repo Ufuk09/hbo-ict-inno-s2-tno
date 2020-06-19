@@ -34,26 +34,6 @@ class WordPressPostTypesTest extends TestCase {
 	}
 
     /** @test */
-    function inserts_immutable_true_and_retrieves_it(){
-        $this->utility->clearMeta();
-        $model = Utility::createModelWithId(1);
-
-        $this->subject->saveImmutable($model, true);
-
-        $this->assertTrue($this->subject->getImmutable($model));
-    }
-
-    /** @test */
-    function inserts_immutable_false_and_retrieves_it(){
-        $this->utility->clearMeta();
-        $model = Utility::createModelWithId(1);
-
-        $this->subject->saveImmutable($model, false);
-
-        $this->assertFalse($this->subject->getImmutable($model));
-    }
-
-    /** @test */
     function inserts_model_and_its_relations(){
         $this->utility->clearMeta();
         $models = $this->insertModelWith2Relations();

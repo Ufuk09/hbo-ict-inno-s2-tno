@@ -51,17 +51,6 @@ class ModelManager extends BaseModelManager {
         ];
     }
 
-    function saveImmutable(Model $model, bool $immutable)
-    {
-        $this->recordHistory('save_immutable', [$model]);
-    }
-
-    function getImmutable(Model $model): bool
-    {
-        $this->recordHistory('get_immutable', [$model]);
-        return true;
-    }
-
     function insertRelation(Model $from, Model $to): bool {
         $this->callRenderer(self::MODEL_MANAGER, $from, $to);
         $this->relations[] = $to;
