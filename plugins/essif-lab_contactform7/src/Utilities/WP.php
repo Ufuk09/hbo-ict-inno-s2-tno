@@ -90,9 +90,9 @@ class WP extends BaseUtility
         add_action('wpcf7_init', array( $this, 'addFormTag' ) );
     }
 
-    function addFormTag(Button $button)
+    function addFormTag()
     {
-        wpcf7_add_form_tag('essif_lab', array ( $button, 'custom_essif_lab_form_tag_handler' ) );
+        wpcf7_add_form_tag('essif_lab', array ( 'Button', 'custom_essif_lab_form_tag_handler' ) );
     }
 
     function loadCustomJs () {

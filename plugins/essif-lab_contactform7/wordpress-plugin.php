@@ -58,8 +58,8 @@ $getButton = function (): Button {
     return new Button();
 };
 
-$getUtility = function () use ($getButton, $getCf7Helper): Utility {
-    return new WP($getCf7Helper(), $getButton());
+$getUtility = function () use ($getCf7Helper): Utility {
+    return new WP($getCf7Helper());
 };
 
 $getIntegration = function () use($getApplication, $getUtility) : Integration {
