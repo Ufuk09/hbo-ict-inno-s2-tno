@@ -26,7 +26,6 @@ class WordPressMetaBox implements Contracts\ModelRenderer {
 	}
 
     function renderFieldImmutable(Integration $integration, Model $model, array $attrs = []): string {
-	    $attrs['checked'] = $integration->getModelManager()->getImmutable($model);
         $view = new ImmutableField($integration, $model, $attrs);
         return $view->render();
     }
