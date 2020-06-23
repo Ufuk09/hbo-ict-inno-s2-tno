@@ -28,38 +28,68 @@ class Utility extends BaseUtility
         BaseUtility::GET_MODELS => [self::class, 'getModels'],
     ];
 
-    function call(string $name, ...$parameters)
-    {
-        $this->recordHistory($name, $parameters);
+	function call(string $name, ...$parameters) {
+		$this->recordHistory($name, $parameters);
 
-        $this->handleSubPluginApi($name, $parameters);
+		$this->handleSubPluginApi($name, ...$parameters);
 
-        if (array_key_exists($name, $this->callbackTriggeringFunctions)) {
-            $callback = $this->callbackTriggeringFunctions[$name];
-            $callback(...$parameters);
-        }
+		if (array_key_exists($name, $this->callbackTriggeringFunctions)) {
+			$callback = $this->callbackTriggeringFunctions[$name];
+			$callback(...$parameters);
+		}
 
-        if (array_key_exists($name, $this->valueReturningFunctions)) {
-            $callback = $this->valueReturningFunctions[$name];
+		if (array_key_exists($name, $this->valueReturningFunctions)) {
+			$callback = $this->valueReturningFunctions[$name];
 
-            return $callback(...$parameters);
-        }
+			return $callback(...$parameters);
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    static function handleSubPluginApi($name, array $params)
-    {
-        if ($name === 'add_action') {
-            if ($params[0] === 'essif-lab_insert_hook') {
-                $params[1](['slug' => 'title']);
-            }
+	static function handleSubPluginApi($name, string $actionName, callable $actionHandler, ...$_) {
+		$prefix = 'essif-lab_';
 
-            if ($params[0] === 'essif-lab_delete_hook') {
-                $params[1](['slug' => 'title']);
-            }
-        }
-    }
+		if ($name === 'add_action') {
+			$hook = ['hook-slug' => 'Hook title'];
+			$target = [1 => 'Target title'];
+			$input = ['input-title' => 'Input title'];
+
+			$commands = ['insert_', 'delete_'];
+			$models = [
+				'hook' => [$hook],
+				'target' => [$target, $hook],
+				'input' => [$input, $target],
+			];
+
+			foreach ($commands as $command) {
+				foreach ($models as $model => $params) {
+					if ($actionName === $prefix.$command.$model) {
+						$actionHandler(...$params);
+					}
+				}
+			}
+		}
+
+		if ($name === 'add_filter') {
+			$command = $prefix.'select_';
+
+			$items = [];
+			$hookSlug = 'hook-slug';
+			$targetSlug = '1-hook-slug';
+
+			$models = [
+				'hook' => [$items],
+				'target' => [$items, $hookSlug],
+				'input' => [$items, $targetSlug],
+			];
+			foreach ($models as $model => $params) {
+				if ($actionName === $command.$model) {
+					$actionHandler(...$params);
+				}
+			}
+		}
+	}
 
     static function addHook(string $hook, callable $callback, int $priority = 10, int $accepted_args = 1): void
     {

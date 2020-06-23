@@ -2,65 +2,109 @@
 
 namespace TNO\EssifLab\Integrations;
 
+use ReflectionClass;
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
 use TNO\EssifLab\Models\Hook;
+use TNO\EssifLab\Models\Input;
+use TNO\EssifLab\Models\Target;
 use TNO\EssifLab\Utilities\WP;
 
 class WordPressSubPluginApi extends BaseIntegration {
 	const TRIGGER_PRE = 'essif-lab_';
+	const PARAMS = 'params';
+	const RELATION = 'relation';
 
-	const TRIGGER_INSERT_PRE = self::TRIGGER_PRE.'insert_';
-
-	const TRIGGER_DELETE_PRE = self::TRIGGER_PRE.'delete_';
-
-	const TRIGGER_SELECT_PRE = self::TRIGGER_PRE.'select_';
+	const TRIGGER_TYPES = [
+		Hook::class => [self::PARAMS => 1],
+		Target::class => [self::PARAMS => 2, self::RELATION => Hook::class],
+		Input::class => [self::PARAMS => 2, self::RELATION => Target::class],
+	];
 
 	function install(): void {
-		$this->addActionInsertHook();
-		$this->addActionDeleteHook();
-		$this->applyFilterSelectHooks();
+		foreach (self::TRIGGER_TYPES as $type => $args) {
+			$params = $args[self::PARAMS];
+			$this->addActionInsert($type, $params);
+			$this->addActionDelete($type, $params);
+			if ($params === 2) {
+				$this->applyFilterSelectAllRelations($type, $args[self::RELATION]);
+			} else {
+				$this->applyFilterSelect($type);
+			}
+		}
 	}
 
-	private function addActionInsertHook() {
-		$this->utility->call(WP::ADD_ACTION, self::TRIGGER_INSERT_PRE.'hook', function ($hooks) {
-			if (is_array($hooks)) {
-				return array_filter(array_map(function ($slug) use ($hooks) {
-					$instance = new Hook([
-						Constants::TYPE_INSTANCE_TITLE_ATTR => $hooks[$slug],
-						Constants::TYPE_INSTANCE_SLUG_ATTR => $slug,
-					]);
+	private function addActionInsert(string $instance, int $params) {
+		$triggerName = self::getTriggerName(self::TRIGGER_PRE.'insert_', $instance);
+		$this->utility->call(WP::ADD_ACTION, $triggerName, function (...$params) use ($instance) {
+			if (self::isArrayOfArrays($params)) {
+				$instance = new $instance(self::getProps($params));
 
-					return $this->manager->insert($instance);
-				}, array_keys($hooks)));
+				$this->manager->insert($instance);
+			}
+		}, 1, $params);
+	}
+
+	private function addActionDelete(string $model, int $params) {
+		$triggerName = self::getTriggerName(self::TRIGGER_PRE.'delete_', $model);
+		$this->utility->call(WP::ADD_ACTION, $triggerName, function (...$params) use ($model) {
+			if (self::isArrayOfArrays($params)) {
+				$props = self::getProps($params);
+				$slug = $props[Constants::TYPE_INSTANCE_SLUG_ATTR];
+				$instance = new $model($props);
+				$instances = $this->manager->select($instance, ['post_name' => $slug]);
+
+				$this->manager->delete(empty($instances) ? null : current($instances));
+			}
+		}, 1, $params);
+	}
+
+	private function applyFilterSelect(string $model) {
+		$triggerName = self::getTriggerName(self::TRIGGER_PRE.'select_', $model);
+		$this->utility->call(WP::ADD_FILTER, $triggerName, function ($items) use ($model) {
+			return array_merge(is_array($items) ? $items : [], $this->manager->select(new $model()));
+		}, 1, 1);
+	}
+
+	private function applyFilterSelectAllRelations(string $model, string $relation) {
+		$triggerName = self::getTriggerName(self::TRIGGER_PRE.'select_', $model);
+		$this->utility->call(WP::ADD_FILTER, $triggerName, function ($items, $parentSlug) use ($model, $relation) {
+			$items = is_array($items) ? $items : [];
+			$parentInstances = $this->manager->select(new $relation(), ['post_name' => $parentSlug]);
+			$from = empty ($parentInstances) ? null : current($parentInstances);
+
+			if (empty($from)) {
+				return $items;
 			}
 
-			return [];
-		});
+			$relations = $this->manager->selectAllRelations($from, new $model());
+
+			return array_merge($items, $relations);
+		}, 1, 2);
 	}
 
-	private function addActionDeleteHook() {
-		$this->utility->call(WP::ADD_ACTION, self::TRIGGER_DELETE_PRE.'hook', function ($hooks) {
-			if (is_array($hooks)) {
-				return array_filter(array_map(function ($slug) use ($hooks) {
-					$instance = new Hook([
-						Constants::TYPE_INSTANCE_SLUG_ATTR => $slug,
-						Constants::TYPE_INSTANCE_TITLE_ATTR => $hooks[$slug],
-					]);
-					$models = $this->manager->select($instance, ['post_name' => $slug]);
-					$model = empty($models) ? null : $models[0];
-
-					return empty($model) ? false : $this->manager->delete($model);
-				}, array_keys($hooks)));
-			}
-
-			return [];
-		});
+	private static function isArrayOfArrays(array $value): bool {
+		return !empty(array_filter($value, 'is_array'));
 	}
 
-	private function applyFilterSelectHooks() {
-		$this->utility->call(WP::ADD_FILTER, self::TRIGGER_SELECT_PRE.'hook', function ($items) {
-			return array_merge(is_array($items) ? $items : [], $this->manager->select(new Hook()));
-		});
+	private static function getTriggerName(string $prefix, string $model): string {
+		return $prefix.strtolower((new ReflectionClass($model))->getShortName());
+	}
+
+	private static function getProps(array $models): array {
+		return [
+			Constants::TYPE_INSTANCE_SLUG_ATTR => self::getSlug($models),
+			Constants::TYPE_INSTANCE_TITLE_ATTR => self::getTitle($models),
+		];
+	}
+
+	private static function getTitle(array $models): string {
+		return strval(current(end($models)));
+	}
+
+	private static function getSlug(array $models): string {
+		return implode('__', array_map(function (array $param) {
+			return key($param);
+		}, $models));
 	}
 }
