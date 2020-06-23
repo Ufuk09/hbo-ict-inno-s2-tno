@@ -31,14 +31,20 @@ class Utility extends BaseUtility
 	function call(string $name, ...$parameters) {
 		$this->recordHistory($name, $parameters);
 
-		$this->handleSubPluginApi($name, ...$parameters);
-
 		if (array_key_exists($name, $this->callbackTriggeringFunctions)) {
+			if (count($parameters) > 3) {
+				$this->handleSubPluginActions($name, ...$parameters);
+			}
+
 			$callback = $this->callbackTriggeringFunctions[$name];
 			$callback(...$parameters);
 		}
 
 		if (array_key_exists($name, $this->valueReturningFunctions)) {
+			if (count($parameters) > 3) {
+				$this->handleSubPluginFilters($name, ...$parameters);
+			}
+
 			$callback = $this->valueReturningFunctions[$name];
 
 			return $callback(...$parameters);
@@ -47,7 +53,7 @@ class Utility extends BaseUtility
 		return null;
 	}
 
-	static function handleSubPluginApi($name, string $actionName, callable $actionHandler, ...$_) {
+	static function handleSubPluginActions($name, string $actionName, $actionHandler) {
 		$prefix = 'essif-lab_';
 
 		if ($name === 'add_action') {
@@ -70,6 +76,10 @@ class Utility extends BaseUtility
 				}
 			}
 		}
+	}
+
+	static function handleSubPluginFilters($name, string $actionName, $actionHandler) {
+		$prefix = 'essif-lab_';
 
 		if ($name === 'add_filter') {
 			$command = $prefix.'select_';
