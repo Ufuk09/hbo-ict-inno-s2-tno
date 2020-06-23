@@ -62,7 +62,6 @@ class WordPressSubPluginApi extends BaseIntegration {
 	private function applyFilterSelect(string $model) {
 		$triggerName = self::getTriggerName(self::TRIGGER_PRE.'select_', $model);
 		$this->utility->call(WP::ADD_FILTER, $triggerName, function ($items) use ($model) {
-			var_dump($model);
 			return array_merge(is_array($items) ? $items : [], $this->manager->select(new $model()));
 		}, 1, 1);
 	}
