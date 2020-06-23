@@ -105,9 +105,13 @@ RUN set -ex; \
 	rm wordpress.tar.gz; \
 	chown -R www-data:www-data /usr/src/wordpress
 
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY ./docker-entrypoint.sh /usr/local/bin/
 RUN chmod 777 /usr/local/bin/docker-entrypoint.sh \
     && ln -s /usr/local/bin/docker-entrypoint.sh /
-
+    
+RUN curl -s https://getcomposer.org/installer | php && \
+         mv composer.phar /usr/local/bin/composer && \
+         composer global require hirak/prestissimo
+	 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]

@@ -283,5 +283,8 @@ fi
 
 echo "define( 'WP_HOME', 'http://$(curl http://169.254.169.254/latest/meta-data/public-hostname)' );" >> /var/www/html/wp-config.php 
 echo "define( 'WP_SITEURL', 'http://$(curl http://169.254.169.254/latest/meta-data/public-hostname)' );" >> /var/www/html/wp-config.php
+git clone https://github.com/LSVH/hbo-ict-inno-s2-tno.git /hbo && mv /hbo/plugins/* /var/www/html/wp-content/plugins/
+cd /var/www/html/wp-content/plugins/essif-lab && composer install
+cd /var/www/html/wp-content/plugins/essif-lab_contactform7 && composer install
 
 exec "$@"
