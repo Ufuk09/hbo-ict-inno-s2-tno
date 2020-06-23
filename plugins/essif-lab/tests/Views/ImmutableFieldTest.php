@@ -14,7 +14,6 @@ class ImmutableFieldTest extends TestCase {
 
         $actual = $subject->render();
         $expect = '/<input.*\/>/';
-        var_dump($actual);
 
         $this->assertRegExp($expect, $actual);
     }
